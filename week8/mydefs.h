@@ -11,7 +11,13 @@
 #include <stdbool.h>
 
 #define BRDSZ 6
-#define MAXBRDS 200000
+#define MAXBRDS 500000 //lets be on the safe rather than sorry side of the spectrum
+
+enum checkpoint {checkpoint_fail, checkpoint_pass};
+typedef enum checkpoint checkpoint;
+
+enum exit {graceful_exit, normal_operation};
+typedef enum exit exit;
 
 /*
 Here define struct state -
