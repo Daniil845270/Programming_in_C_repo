@@ -36,3 +36,7 @@ struct state{
 */
 
 #include "md.h"
+
+checkpoint file2str_argcheck(const char* fname, char* str);
+checkpoint check_pointer(const char* fname, char* str);
+checkpoint filereading(const char* fname);
