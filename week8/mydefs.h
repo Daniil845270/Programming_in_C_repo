@@ -12,7 +12,7 @@
 
 #define BRDSZ 6
 #define BIG_NUM 1000
-#define MAXBRDS 500000 //lets be on the safe rather than sorry side of the spectrum
+#define MAXBRDS 200000 
 #define POS long unsigned int
 
 enum ckpt {ckpt_fail, ckpt_pass};
@@ -40,7 +40,7 @@ struct state{
 #include "md.h"
 
 myexit readNcheck_file(const char* fname, char* str);
-void line_fillup(char* temp_string, char* temp_content_str, int* cnt);
+myexit line_fillup(char* temp_string, char* temp_content_str, int* cnt);
 // ckpt hawk_check(char* temp_string);
 ckpt only_uprletter(char* temp_string);
 // ckpt body_check(char* temp_string);
