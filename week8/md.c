@@ -5,8 +5,7 @@ bool file2str(const char* fname, char* str) // the length of the string is defin
    if (fname == NULL || str == NULL){
       return false;
    }
-
-   // char filename_or_string[MAXSTR] = {'0'}; //don't need it
+   
    if (readNcheck_file(fname, str) == graceful_exit){
       return false;
    }
@@ -16,29 +15,23 @@ bool file2str(const char* fname, char* str) // the length of the string is defin
 
 
 //more fclose to each of the if statements
-//this function is adapted from my function in crushit assignment
 myexit readNcheck_file(const char* fname, char* str)
 {
    FILE* fp = fopen(fname, "r"); 
    if (fp != NULL){
       char temp[BIG_NUM] = {'0'};              // optimise this when the function is working
       int cnt = 0;
-
       if (fillcheck_hawk(fp, temp, str, &cnt) == ckpt_fail){
-         return graceful_exit;
+         fclose(fp); return graceful_exit;
       }
-
       POS rowlen = 0;
-
       if (fillcheck_fstbody(fp, temp, str, &cnt, &rowlen) == ckpt_fail){
-         return graceful_exit;
+         fclose(fp); return graceful_exit;
       }
-
       if (fillcheck_restbody(fp, temp, str, &cnt, &rowlen) == ckpt_fail){
-         return graceful_exit;
+         fclose(fp); return graceful_exit;
       }
-      fclose(fp); 
-      return normal_operation;
+      fclose(fp); return normal_operation;
    }
    return graceful_exit;
 }
@@ -51,7 +44,6 @@ ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt)
    if (strlen(temp) != 1){
       return ckpt_fail;
    }
-
    if (only_uprletter(temp) == ckpt_fail){
       return ckpt_fail;
    }
@@ -64,15 +56,14 @@ ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
    if (fscanf(fp, "%s", temp) != 1){
       return ckpt_fail;
    }
-
    *rowlen = strlen(temp);
    if (*rowlen < 1 || *rowlen > 6){
       return ckpt_fail;
    }
-
    if (only_uprletter(temp) == ckpt_fail){
       return ckpt_fail;
    }
+   str[(*cnt)] = '-'; (*cnt)++;
    line_fillup(temp, str, cnt);
    return ckpt_pass;
 }
@@ -90,8 +81,8 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
       if (only_uprletter(temp) == ckpt_fail){
          return ckpt_fail;
       }
-      line_fillup(temp, str, cnt);
-      rowcnt++;
+      str[(*cnt)] = '-'; (*cnt)++;
+      line_fillup(temp, str, cnt); rowcnt++;
    }
    return ckpt_pass;
 }
