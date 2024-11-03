@@ -11,13 +11,14 @@
 #include <stdbool.h>
 
 #define BRDSZ 6
+#define BIG_NUM 1000
 #define MAXBRDS 500000 //lets be on the safe rather than sorry side of the spectrum
 
 enum checkpoint {checkpoint_fail, checkpoint_pass};
 typedef enum checkpoint checkpoint;
 
-enum exit {graceful_exit, normal_operation};
-typedef enum exit exit;
+enum myexit {graceful_exit, normal_operation};
+typedef enum myexit myexit;
 
 /*
 Here define struct state -
@@ -37,6 +38,4 @@ struct state{
 
 #include "md.h"
 
-checkpoint file2str_argcheck(const char* fname, char* str);
-checkpoint check_pointer(const char* fname, char* str);
-checkpoint filereading(const char* fname);
+myexit readNcheck_file(const char* fname, char* str);

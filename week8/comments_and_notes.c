@@ -11,7 +11,7 @@ the file can't be opened, or is badly formed;
 else returns true.
 */
 
-
+// one of the test cases -> check that the created strings in the readNcheck_file won't casue a stack_buffer_overflow
 
 bool file2str(const char* fname, char* str)
 {
