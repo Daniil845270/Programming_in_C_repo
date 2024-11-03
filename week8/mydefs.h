@@ -39,3 +39,9 @@ struct state{
 #include "md.h"
 
 myexit readNcheck_file(const char* fname, char* str);
+void line_fillup(char* temp_string, char* temp_content_str, int* fillup_cnt);
+checkpoint hawk_check(char* temp_string);
+checkpoint only_uprletter(char* temp_string);
+checkpoint body_check(char* temp_string);
+checkpoint fillupNcheck_hawk(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt);
+checkpoint fillupNcheck_bodyfirst(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt);

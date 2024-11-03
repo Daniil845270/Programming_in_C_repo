@@ -27,6 +27,7 @@ bool file2str(const char* fname, char* str)
       file reading
          - if a file can not be read or doesnt exist - copy&paste the filereading function from crushit and adapt it + check the slides for any additional checks 
       file contents
+         //write an assert that checks if I wrote empty hawk and body correctly
          - if any non-uppercase characters -> return false
          - hawk
             - if absent -> return false
