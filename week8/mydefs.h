@@ -13,9 +13,10 @@
 #define BRDSZ 6
 #define BIG_NUM 1000
 #define MAXBRDS 500000 //lets be on the safe rather than sorry side of the spectrum
+#define POS long unsigned int
 
-enum checkpoint {checkpoint_fail, checkpoint_pass};
-typedef enum checkpoint checkpoint;
+enum ckpt {ckpt_fail, ckpt_pass};
+typedef enum ckpt ckpt;
 
 enum myexit {graceful_exit, normal_operation};
 typedef enum myexit myexit;
@@ -39,9 +40,12 @@ struct state{
 #include "md.h"
 
 myexit readNcheck_file(const char* fname, char* str);
-void line_fillup(char* temp_string, char* temp_content_str, int* fillup_cnt);
-checkpoint hawk_check(char* temp_string);
-checkpoint only_uprletter(char* temp_string);
-checkpoint body_check(char* temp_string);
-checkpoint fillupNcheck_hawk(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt);
-checkpoint fillupNcheck_bodyfirst(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt);
+void line_fillup(char* temp_string, char* temp_content_str, int* cnt);
+// ckpt hawk_check(char* temp_string);
+ckpt only_uprletter(char* temp_string);
+// ckpt body_check(char* temp_string);
+// ckpt fillupNcheck_hawk(FILE* filepointer, char* temp_string, char* temp_content_str, int* cnt);
+// ckpt fillupNcheck_bodyfirst(FILE* filepointer, char* temp_string, char* temp_content_str, int* cnt);
+ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt);
+ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
+ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);

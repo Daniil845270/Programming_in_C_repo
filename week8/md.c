@@ -1,6 +1,6 @@
 #include "mydefs.h"
 
-bool file2str(const char* fname, char* str)
+bool file2str(const char* fname, char* str) // the length of the string is defined outside of the funciton and it is ASSumed that the length is enough. may need to put a failsafe here as well 
 {
    if (fname == NULL || str == NULL){
       return false;
@@ -14,112 +14,118 @@ bool file2str(const char* fname, char* str)
    return true;
 }
 
+
+//more fclose to each of the if statements
 //this function is adapted from my function in crushit assignment
 myexit readNcheck_file(const char* fname, char* str)
 {
-   FILE* filepointer = fopen(fname, "r"); 
-   if (filepointer != NULL){
-      char temp_string[BIG_NUM] = {'0'};              // optimise this when the function is working
-      char temp_content_str[BIG_NUM] = {'0'};
-      int fillup_cnt = 0;
+   FILE* fp = fopen(fname, "r"); 
+   if (fp != NULL){
+      char temp[BIG_NUM] = {'0'};              // optimise this when the function is working
+      int cnt = 0;
 
-      if (fillupNcheck_hawk(filepointer, temp_string, temp_content_str, &fillup_cnt) == checkpoint_fail){
+      if (fillcheck_hawk(fp, temp, str, &cnt) == ckpt_fail){
          return graceful_exit;
       }
 
-      if (fillupNcheck_bodyfirst(filepointer, temp_string, temp_content_str, &fillup_cnt) == checkpoint_fail){
+      POS rowlen = 0;
+
+      if (fillcheck_fstbody(fp, temp, str, &cnt, &rowlen) == ckpt_fail){
          return graceful_exit;
       }
 
-      //writing and checking the rest of the body if it exists
-
-      while (fscanf(filepointer, "%s", temp_string) == 1){
-         temp_content_str[fillup_cnt] = '-';
-         fillup_cnt++;
-         line_fillup(temp_string, temp_content_str, &fillup_cnt);
+      if (fillcheck_restbody(fp, temp, str, &cnt, &rowlen) == ckpt_fail){
+         return graceful_exit;
       }
-
-      strcpy(str, temp_content_str);
-      fclose(filepointer); 
+      fclose(fp); 
+      return normal_operation;
    }
-
-   return normal_operation;
+   return graceful_exit;
 }
 
-checkpoint fillupNcheck_bodyfirst(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt)
+ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt)
 {
-   if (fscanf(filepointer, "%s", temp_string) != 1){
-      return checkpoint_fail;
+   if (fscanf(fp, "%s", temp) != 1){
+      return ckpt_fail;
    }
-   temp_content_str[(*fillup_cnt)] = '-';
-   fillup_cnt++;
-   line_fillup(temp_string, temp_content_str, fillup_cnt);
+   if (strlen(temp) != 1){
+      return ckpt_fail;
+   }
 
-   return checkpoint_pass;
+   if (only_uprletter(temp) == ckpt_fail){
+      return ckpt_fail;
+   }
+   line_fillup(temp, str, cnt);
+   return ckpt_pass;
 }
 
-checkpoint fillupNcheck_hawk(FILE* filepointer, char* temp_string, char* temp_content_str, int* fillup_cnt)
+ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
 {
-   if (fscanf(filepointer, "%s", temp_string) != 1){
-      return checkpoint_fail;
+   if (fscanf(fp, "%s", temp) != 1){
+      return ckpt_fail;
    }
-   if (hawk_check(temp_string) == checkpoint_fail){
-      return checkpoint_fail;
-   }
-   line_fillup(temp_string, temp_content_str, fillup_cnt);
 
-   return checkpoint_pass;
+   *rowlen = strlen(temp);
+   if (*rowlen < 1 || *rowlen > 6){
+      return ckpt_fail;
+   }
+
+   if (only_uprletter(temp) == ckpt_fail){
+      return ckpt_fail;
+   }
+   line_fillup(temp, str, cnt);
+   return ckpt_pass;
 }
 
-checkpoint hawk_check(char* temp_string)
+ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
 {
-   if (strlen(temp_string) != 1){
-      return checkpoint_fail;
+   int rowcnt = 1;
+   while (fscanf(fp, "%s", temp) == 1){
+      if (rowcnt > 6){
+         return ckpt_fail;
+      }
+      if (*rowlen != strlen(temp)){
+         return ckpt_fail;
+      }
+      if (only_uprletter(temp) == ckpt_fail){
+         return ckpt_fail;
+      }
+      line_fillup(temp, str, cnt);
+      rowcnt++;
    }
-
-   if (only_uprletter(temp_string) == checkpoint_fail){
-      return checkpoint_fail;
-   }
-
-   return checkpoint_pass;
+   return ckpt_pass;
 }
 
-checkpoint body_check(char* temp_string)
+ckpt only_uprletter(char* temp)
 {
-   if (strlen(temp_string) < 1 || strlen(temp_string) > 6){
-      return checkpoint_fail;
-   }
-
-   return checkpoint_pass;
-}
-
-checkpoint only_uprletter(char* temp_string)
-{
-   for (int letter = 0; temp_string[letter]; letter++){
-      if (temp_string[letter] < 'A' || temp_string[letter] > 'Z'){
-         return checkpoint_fail;
+   for (int letter = 0; temp[letter]; letter++){
+      if (temp[letter] < 'A' || temp[letter] > 'Z'){
+         return ckpt_fail;
       }
    }
-   return checkpoint_pass;
+   return ckpt_pass;
 }
 
-void line_fillup(char* temp_string, char* temp_content_str, int* fillup_cnt)
+void line_fillup(char* temp, char* str, int* cnt)
 {
-   for (long unsigned int letter = 0; temp_string[letter]; letter++){
-         temp_content_str[(*fillup_cnt)] = temp_string[letter];
-         (*fillup_cnt)++;
+   for (long unsigned int letter = 0; temp[letter]; letter++){
+         str[(*cnt)] = temp[letter];
+         (*cnt)++;
    }
+   str[(*cnt)] = '\0';
+   printf("%s\n", str);
 }
+
 
 void test(void)
 {
    char str[(BRDSZ*BRDSZ+BRDSZ+2)];
    file2str("10moves.brd", str);
-   printf("%s\n", str);
-   assert(only_uprletter("ABCXYZ") == checkpoint_pass);
-   assert(only_uprletter("ABCXYz") == checkpoint_fail);
-   assert(only_uprletter("A") == checkpoint_pass);
-   assert(only_uprletter("!") == checkpoint_fail);
+   // printf("%s\n", str);
+   assert(only_uprletter("ABCXYZ") == ckpt_pass);
+   assert(only_uprletter("ABCXYz") == ckpt_fail);
+   assert(only_uprletter("A") == ckpt_pass);
+   assert(only_uprletter("!") == ckpt_fail);
 }
 
 
