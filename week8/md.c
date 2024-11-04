@@ -132,7 +132,7 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 
    s->brdlist[0].hawk = str[0];
 
-   s->pcnt = 0;
+   s->pcnt = -10;
 
    s->dcnt = 1;
 
@@ -199,23 +199,36 @@ solv find_solution(state* s)
 {
    int statrow = s->brdlist[0].rows;
    int statcol = s->brdlist[0].clmn;
-   // while (s->solved == false){
-   //    for (int col = 0; col < statcol; col++){
-   //       create_dauthers(s, col);
-   //       (s->dcnt)++;
-   //    }
-   // }
-   create_dauthers(s, 0);
+   while (s->solved == false){
+      for (int col = 0; col < statcol; col++){
+         create_dauthers(s, col);
+         if (find_match(s) == false){
+            if (is_solution(s) == true){
+               return solution_found;
+            }
+            (s->dcnt)++;
+         }
+         else{
+            if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){
+               return solution_doesnt_exist;
+            }
+         }
+      }
+      (s->dcnt)++;
+   }
 
-   structarray_printer(&(s->brdlist[1]));
-   // printf("\n");
 
-   find_match(s);
+   // create_dauthers(s, 0);
 
-   // printf("hawk is %c\n", s->brdlist[1].hawk);
+   // structarray_printer(&(s->brdlist[1]));
+   // // printf("\n");
 
-   // is_solution(s);
-   assert(is_solution(s) == true);
+   
+
+   // // printf("hawk is %c\n", s->brdlist[1].hawk);
+
+   // // is_solution(s);
+   // assert(is_solution(s) == true);
 
    return 0;
 }
@@ -308,6 +321,7 @@ void cpyParDtr(state* s)
 {
    int di = s->dcnt;
    int pi = s->pcnt;
+   s->brdlist[di].parent = pi;
    int statrow = s->brdlist[di].rows = s->brdlist[0].rows;
    int statcol = s->brdlist[di].clmn = s->brdlist[0].clmn;
 
