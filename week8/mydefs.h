@@ -75,3 +75,6 @@ solv find_solution(state* s);
 void create_dauthers(state* s, int col);
 void cpyParDtr(state* s);
 void shift_tile(state* s, int col);
+bool find_match(state* s);
+bool comparator(state* s, int strc);
+bool is_solution(state* s);

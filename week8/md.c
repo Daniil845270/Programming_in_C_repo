@@ -206,17 +206,78 @@ solv find_solution(state* s)
    //    }
    // }
    create_dauthers(s, 0);
+
+   structarray_printer(&(s->brdlist[1]));
+   // printf("\n");
+
+   find_match(s);
+
+   // printf("hawk is %c\n", s->brdlist[1].hawk);
+
+   // is_solution(s);
+   assert(is_solution(s) == true);
+
    return 0;
+}
+
+bool is_solution(state* s)
+{
+   int di = s->dcnt;
+   int pi = s->pcnt;
+   int frow = s->brdlist[0].rows;
+   int fcol =  s->brdlist[0].clmn;
+
+   // for (int row = frow - 1; row > 0; row--){
+   //    if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
+   //       return false;
+   //    }
+   // }
+
+   for (int col = 0; col < fcol; col++){
+      for (int row = frow - 1; row > 0; row--){
+         if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
+bool find_match(state* s)
+{
+   for (int strc = 0; strc < s->dcnt; strc++){
+      if (comparator(s, strc) == false){
+         return true;
+      }
+   }
+   return false;
+}
+
+bool comparator(state* s, int strc)
+{
+   int di = s->dcnt;
+   // int pi = s->pcnt;
+   int statrow = s->brdlist[0].rows;
+   int statcol = s->brdlist[0].clmn;
+
+   for (int row = 0; row < statrow; row++){
+      for (int col = 0; col < statcol; col++){
+         if (s->brdlist[strc].brd[row][col] != s->brdlist[di].brd[row][col]){
+            return false;
+         }
+      }
+   }
+   return true;
 }
 
 void create_dauthers(state* s, int col)
 {
    cpyParDtr(s);
-   structarray_printer(&(s->brdlist[1]));
-   printf("\n");
+   // structarray_printer(&(s->brdlist[1]));
+   // printf("\n");
    shift_tile(s, col);
-   structarray_printer(&(s->brdlist[1]));
-   printf("\n");
+   // structarray_printer(&(s->brdlist[1]));
+   // printf("\n");
 
    // printf("arr1\n");
    // structarray_printer(&(s->brdlist[0]));
@@ -236,8 +297,8 @@ void shift_tile(state* s, int col)
    int fcol =  s->brdlist[0].clmn;
    s->brdlist[di].hawk = s->brdlist[di].brd[(frow - 1)][col];
 
-   for (int row = 1; row < (frow - 1); row++){
-      s->brdlist[di].brd[(row + 1)][col] = s->brdlist[di].brd[(row)][col];
+   for (int row = frow - 1; row > 0; row--){
+      s->brdlist[di].brd[row][col] = s->brdlist[di].brd[(row - 1)][col];
    }
 
    s->brdlist[di].brd[0][col] = s->brdlist[pi].hawk;
@@ -267,7 +328,7 @@ void test(void)
    state* s;
 
    // assert(file2str("2moves.brd", str));
-   strcpy(str, "H-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA
+   strcpy(str, "S-ABC-BBC-CBC-DBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
    s = str2state(str);
    assert(s);
    solve(s, true);
