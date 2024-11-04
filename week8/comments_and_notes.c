@@ -108,3 +108,21 @@ solv find_solution(state* s)
       pcnt++;
    }
 }
+
+// struct board{
+//    char brd[BRDSZ][(BRDSZ+1)];
+//    char hawk;
+//    int parent;
+//    int daughter;
+//    int rows;
+//    int clmn;
+// };
+// typedef struct board board;
+
+// struct state{
+//    board brdlist[MAXBRDS];
+//    int pcnt;
+//    int dcnt;
+//    bool solved;
+// };
+// typedef struct state state;

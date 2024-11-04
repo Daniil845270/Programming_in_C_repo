@@ -55,6 +55,7 @@ struct state{
    board brdlist[MAXBRDS];
    int pcnt;
    int dcnt;
+   bool solved;
 };
 typedef struct state state;
 
@@ -69,3 +70,8 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 
 void copy_strToState(board* board, const char* str);
 void structarray_printer(board* b);
+
+solv find_solution(state* s);
+void create_dauthers(state* s, int col);
+void cpyParDtr(state* s);
+void shift_tile(state* s, int col);

@@ -134,7 +134,7 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 
    s->pcnt = 0;
 
-   s->dcnt = 0; //subject to change though 
+   s->dcnt = 1;
 
    copy_strToState(&(s->brdlist[0]), str);
    // structarray_printer(&(s->brdlist[0]));
@@ -188,27 +188,74 @@ otherwise, print nothing.
 */
 
 
-// struct board{
-//    char brd[BRDSZ][(BRDSZ+1)];
-//    char hawk;
-//    int parent;
-//    int rows;
-//    int clmn;
-// };
-// typedef struct board board;
-
-// struct state{
-//    board brdlist[MAXBRDS];
-//    int pcnt;
-//    int dcnt;
-// };
-// typedef struct state state;
-
 int solve(state* s, bool verbose)
 {
+   solv mysolution = find_solution(s);
+
    return 0;
 }
 
+solv find_solution(state* s)
+{
+   int statrow = s->brdlist[0].rows;
+   int statcol = s->brdlist[0].clmn;
+   // while (s->solved == false){
+   //    for (int col = 0; col < statcol; col++){
+   //       create_dauthers(s, col);
+   //       (s->dcnt)++;
+   //    }
+   // }
+   create_dauthers(s, 0);
+   return 0;
+}
+
+void create_dauthers(state* s, int col)
+{
+   cpyParDtr(s);
+   structarray_printer(&(s->brdlist[1]));
+   printf("\n");
+   shift_tile(s, col);
+   structarray_printer(&(s->brdlist[1]));
+   printf("\n");
+
+   // printf("arr1\n");
+   // structarray_printer(&(s->brdlist[0]));
+   // printf("arr2\n");
+   // structarray_printer(&(s->brdlist[1]));
+   // printf("arr3\n");
+   // structarray_printer(&(s->brdlist[2]));
+   // printf("arr4\n");
+   // structarray_printer(&(s->brdlist[3]));
+}
+
+void shift_tile(state* s, int col)
+{
+   int di = s->dcnt;
+   int pi = s->pcnt;
+   int frow = s->brdlist[0].rows;
+   int fcol =  s->brdlist[0].clmn;
+   s->brdlist[di].hawk = s->brdlist[di].brd[(frow - 1)][col];
+
+   for (int row = 1; row < (frow - 1); row++){
+      s->brdlist[di].brd[(row + 1)][col] = s->brdlist[di].brd[(row)][col];
+   }
+
+   s->brdlist[di].brd[0][col] = s->brdlist[pi].hawk;
+}
+
+void cpyParDtr(state* s)
+{
+   int di = s->dcnt;
+   int pi = s->pcnt;
+   int statrow = s->brdlist[di].rows = s->brdlist[0].rows;
+   int statcol = s->brdlist[di].clmn = s->brdlist[0].clmn;
+
+   for (int row = 0; row < statrow; row++){
+      for (int col = 0; col < statcol; col++){
+         s->brdlist[di].brd[row][col] = s->brdlist[pi].brd[row][col];
+      }
+   }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,11 +267,11 @@ void test(void)
    state* s;
 
    // assert(file2str("2moves.brd", str));
-   strcpy(str, "A-ABC-ABC-ABC-CBA");
+   strcpy(str, "H-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA
    s = str2state(str);
    assert(s);
+   solve(s, true);
    free(s);
-
    // printf("\n");
 
    strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");

@@ -7,9 +7,9 @@ int main(void)
 
    test();
 
-   // // size - > max Board  tiles + hyphens + hawk 
-   // char str[MAXSTR];
-   // state* s;
+   // size - > max Board  tiles + hyphens + hawk 
+   char str[MAXSTR];
+   state* s;
 
    // assert(file2str("2moves.brd", str));
    // // strcpy(str, "A-ABC-ABC-ABC-CBA");
