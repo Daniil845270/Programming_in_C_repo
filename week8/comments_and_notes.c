@@ -75,3 +75,36 @@ bool file2str(const char* fname, char* str)
 
 
 }
+
+int solve(state* s, bool verbose)
+{
+   solv mysolution = find_solution(s);
+
+   if (verbose == true){
+      print_ancestry(state* s);
+   }
+   
+   return 
+}
+
+solv find_solution(state* s)
+{
+   while (s->solved == false){
+      for (int col = 0; col < s->clmn; col++){
+         create_dauthers(s->brdlist[dcnt].str);
+         if (find_match(s->brdlist[dcnt].str) == false){
+            if (is_solution(s->brdlist[dcnt].str) == true){
+               // s->solved = true;
+               return solution_found;
+            }
+            dcnt++;
+         }
+         else{
+            if ((dcnt == pcnt + 1) && (col == s->clmn - 1)){
+               return solution_doesnt_exist;
+            }
+         }
+      }
+      pcnt++;
+   }
+}

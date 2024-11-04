@@ -1,6 +1,6 @@
 #include "mydefs.h"
 
-bool file2str(const char* fname, char* str) // the length of the string is defined outside of the funciton and it is ASSumed that the length is enough. may need to put a failsafe here as well 
+bool file2str(const char* fname, char* str) // the length of the string is defined outside of the funciton and it is assumed that the length is enough. may need to put a failsafe here as well 
 {
    if (fname == NULL || str == NULL){
       return false;
@@ -13,7 +13,6 @@ bool file2str(const char* fname, char* str) // the length of the string is defin
    return true;
 }
 
-//more fclose to each of the if statements
 myexit readNcheck_file(const char* fname, char* str)
 {
    FILE* fp = fopen(fname, "r"); 
@@ -109,10 +108,145 @@ myexit line_fillup(char* temp, char* str, int* cnt)
    return normal_operation;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+state* str2state(const char* str) //adapt all of the same failsafes for this function from file2string, Neil will brake it 
+{
+   state* s = calloc(1, sizeof(state));
+
+   //here are all of the barriers that break the funciton
+
+   s->brdlist[0].clmn = 0;
+   for (int letter = 2; str[letter] != '-'; letter++){
+      (s->brdlist[0].clmn)++;
+   }
+
+   s->brdlist[0].rows = 0;
+   for (int letter = 0; str[letter]; letter++){
+      if (str[letter] == '-'){
+         (s->brdlist[0].rows)++;
+      }
+   }
+
+   s->brdlist[0].hawk = str[0];
+
+   s->pcnt = 0;
+
+   s->dcnt = 0; //subject to change though 
+
+   copy_strToState(&(s->brdlist[0]), str);
+   // structarray_printer(&(s->brdlist[0]));
+
+   // printf("s->brdlist[0].hawk = %c\n", s->brdlist[0].hawk);
+   // printf("s->pcnt = %d\n", s->pcnt);
+   // printf("s->dcnt = %d\n", s->dcnt);
+   // printf("s->brdlist[0].clmn = %d\n", s->brdlist[0].clmn);
+   // printf("s->brdlist[0].rows = %d\n", s->brdlist[0].rows);
+   return s;
+}
+
+void copy_strToState(board* cpyboard, const char* str)
+{
+   int row = 0;
+   int column = 0;
+   for (int letter = 2; str[letter]; letter++){
+      if (str[letter] == '-'){
+         column = 0;
+         row++;
+      }
+      else{
+         cpyboard->brd[row][column] = str[letter];
+         // printf("row = %d, column = %d\n", row, column);
+         column++;
+         // printf("%c", cpyboard->brd[row][column]);
+      }
+   }
+}
+
+void structarray_printer(board* b)
+{
+   for (int irow = 0; irow < b->rows; irow++){
+      for (int col = 0; col < b->clmn; col++){
+         printf("%c", b->brd[irow][col]);
+      }
+      printf("\n");
+   }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* For a state s, returns the number of 'moves'
+required to solve the board.
+An already solved board=0
+An impossible board=-1
+If verbose==true, then print out the solution,
+otherwise, print nothing.
+*/
+
+
+// struct board{
+//    char brd[BRDSZ][(BRDSZ+1)];
+//    char hawk;
+//    int parent;
+//    int rows;
+//    int clmn;
+// };
+// typedef struct board board;
+
+// struct state{
+//    board brdlist[MAXBRDS];
+//    int pcnt;
+//    int dcnt;
+// };
+// typedef struct state state;
+
+int solve(state* s, bool verbose)
+{
+   return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 void test(void)
 {
    char str[(BRDSZ*BRDSZ+BRDSZ+2)];
+   state* s;
+
+   // assert(file2str("2moves.brd", str));
+   strcpy(str, "A-ABC-ABC-ABC-CBA");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   // printf("\n");
+
+   strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   // printf("\n");
+
+   strcpy(str, "A-A-A-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   // printf("\n");
+
+   strcpy(str, "A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+
    // file2str("10moves.brd", str);
    // // printf("%s\n", str);
    assert(only_uprletter("ABCXYZ") == ckpt_pass);
@@ -191,21 +325,8 @@ void test(void)
 
 
 
-// state* str2state(const char* str)
-// {
 
-//    // can actually copy some of the checks from file2str
 
-//    // alloc space for state
-//    // ...
-//    // Put contents of string into
-//    // first board of list in state.
-//    // ...
-//    // return state;
-// }
 
-// int solve(state* s, bool verbose)
-// {
-// }
 
 // /* Many of other functions, as required */

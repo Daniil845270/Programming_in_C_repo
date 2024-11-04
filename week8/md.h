@@ -14,23 +14,23 @@ else returns true.
 */
 bool file2str(const char* fname, char* str);
 
-// /* Converts string definition of starting board
-// into the first board of a 'state' structure and
-// returns it. 
-// Args : String to be read.
-// Returns: NULL is there are any problems;
-// else returns state.
-// */
-// state* str2state(const char* str);
+/* Converts string definition of starting board
+into the first board of a 'state' structure and
+returns it. 
+Args : String to be read.
+Returns: NULL is there are any problems;
+else returns state.
+*/
+state* str2state(const char* str);
 
 
-// /* For a state s, returns the number of 'moves'
-// required to solve the board.
-// An already solved board=0
-// An impossible board=-1
-// If verbose==true, then print out the solution,
-// otherwise, print nothing.
-// */
-// int solve(state* s, bool verbose);
+/* For a state s, returns the number of 'moves'
+required to solve the board.
+An already solved board=0
+An impossible board=-1
+If verbose==true, then print out the solution,
+otherwise, print nothing.
+*/
+int solve(state* s, bool verbose);
 
 void test(void);

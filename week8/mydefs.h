@@ -21,31 +21,51 @@ typedef enum ckpt ckpt;
 enum myexit {graceful_exit, normal_operation};
 typedef enum myexit myexit;
 
-/*
-Here define struct state -
-it might look something like:
+enum solv {solution_doesnt_exist, solution_found};
+typedef enum solv solv;
+
+
+// Here define struct state -
+// it might look something like:
+
+// struct board{
+//    2D array of tiles
+//    hawk
+//    parent
+// }
+
+// struct state{
+//     array of struct board[]; (shouldn't be an array of pointers to structures, but an array of structures)
+//     number of items in struct board[] (Fs);
+//     etc.
+// }
+
 
 struct board{
-   2D array of tiles
-   hawk
-   parent
-}
+   char brd[BRDSZ][(BRDSZ+1)];
+   char hawk;
+   int parent;
+   int daughter;
+   int rows;
+   int clmn;
+};
+typedef struct board board;
 
 struct state{
-    array of struct board[];
-    etc.
-}
-*/
+   board brdlist[MAXBRDS];
+   int pcnt;
+   int dcnt;
+};
+typedef struct state state;
 
 #include "md.h"
 
 myexit readNcheck_file(const char* fname, char* str);
 myexit line_fillup(char* temp_string, char* temp_content_str, int* cnt);
-// ckpt hawk_check(char* temp_string);
 ckpt only_uprletter(char* temp_string);
-// ckpt body_check(char* temp_string);
-// ckpt fillupNcheck_hawk(FILE* filepointer, char* temp_string, char* temp_content_str, int* cnt);
-// ckpt fillupNcheck_bodyfirst(FILE* filepointer, char* temp_string, char* temp_content_str, int* cnt);
 ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt);
 ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
+
+void copy_strToState(board* board, const char* str);
+void structarray_printer(board* b);

@@ -7,12 +7,12 @@ int main(void)
 
    test();
 
-   // size - > max Board  tiles + hyphens + hawk 
+   // // size - > max Board  tiles + hyphens + hawk 
    // char str[MAXSTR];
    // state* s;
 
-   // //assert(file2str("2moves.brd", str));
-   // strcpy(str, "A-ABC-ABC-ABC-CBA");
+   // assert(file2str("2moves.brd", str));
+   // // strcpy(str, "A-ABC-ABC-ABC-CBA");
    // s = str2state(str);
    // assert(s);
    // assert(solve(s, true)==2);
