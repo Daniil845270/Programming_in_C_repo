@@ -192,6 +192,9 @@ int solve(state* s, bool verbose)
 {
    // solv mysolution = find_solution(s);
 
+   if (is_solution(s, true) == true){
+      return 0;
+   }
    if (find_solution(s) == solution_found){
       return backtrace_solution(s, verbose);
    }
@@ -241,11 +244,11 @@ void print_finstructarray(state* s)
 solv find_solution(state* s)
 {
    int statcol = s->brdlist[0].clmn; // int statrow = s->brdlist[0].rows;
-   while (s->solved == false){ // while (s->solved == false){              //this is an infinite loop, be careful with that
+   while (s->solved == false){ // while (s->solved == false){              //this is an infinite loop, be careful with that (i don't think I actually set s->solved to true anywhere)
       for (int col = 0; col < statcol; col++){
          create_dauthers(s, col);
          if (find_match(s) == differ){
-            if (is_solution(s) == true){ 
+            if (is_solution(s, false) == true){ 
                return solution_found;
             }
             (s->dcnt)++;
@@ -263,18 +266,18 @@ solv find_solution(state* s)
 
 
 
-bool is_solution(state* s)
+bool is_solution(state* s, bool edge)
 {
-   int di = s->dcnt;
+   int di;
+   if (edge == true){
+      di = 0;
+   }
+   else{
+      di = s->dcnt;
+   }
    // int pi = s->pcnt;
    int frow = s->brdlist[0].rows;
    int fcol =  s->brdlist[0].clmn;
-
-   // for (int row = frow - 1; row > 0; row--){
-   //    if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
-   //       return false;
-   //    }
-   // }
 
    for (int col = 0; col < fcol; col++){
       for (int row = frow - 1; row > 0; row--){

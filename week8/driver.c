@@ -22,14 +22,14 @@ int main(void)
 
    printf("Passed first\n");
 
-   // printf("Passed second\n");
+   printf("Passed second\n");
 
-   // assert(file2str("0moves.brd", str));
-   // assert(strcmp("A-B", str)==0);
-   // s = str2state(str);
-   // assert(s);
-   // assert(solve(s, false)==0);
-   // free(s);
+   assert(file2str("0moves.brd", str));
+   assert(strcmp("A-B", str)==0);
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false)==0);
+   free(s);
 
    
 
