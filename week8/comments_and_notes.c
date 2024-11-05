@@ -1,3 +1,107 @@
+- added check for the pointer inputs for the str2state
+- length of str is user input -> we dont have to check for that
+- the string must at least be letter-dash-letter
+- the string must be no more than hawk + 6by6 with dashes
+- in the body, the length of the columns must be fixed
+- no other characters than uppercase letters between the dashes
+
+
+
+
+
+
+bool file2str(const char* fname, char* str)
+{
+   what does this function have to do
+   1) open a file and transfer its contents into a string
+
+
+   2) what do I need to check
+      pointers to file
+         - if ny pointers are null -> false
+      string check
+         - if the length of the string is less than 200,000 -> return false (use strlen)
+      file reading
+         - if a file can not be read or doesnt exist - copy&paste the filereading function from crushit and adapt it + check the slides for any additional checks 
+      file contents
+         //write an assert that checks if I wrote empty hawk and body correctly
+         - if any non-uppercase characters -> return false
+         - hawk
+            - if absent -> return false
+            - if more than one characters -> return false
+         - body
+            - if absent -> return false
+            - if column number is not the same in all rows -> return false 
+            - if the dimentions exceed 6x6 -> return false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Converts file definition of starting board
 into a string, to make checking etc. easier.
 File contains the hawk tile, then each row

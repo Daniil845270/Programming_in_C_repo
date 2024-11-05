@@ -66,13 +66,14 @@ typedef struct state state;
 
 myexit readNcheck_file(const char* fname, char* str);
 myexit line_fillup(char* temp_string, char* temp_content_str, int* cnt);
-ckpt only_uprletter(char* temp_string);
+ckpt only_uprletter(const char* temp);
 ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt);
 ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 
 void copy_strToState(board* board, const char* str);
 void structarray_printer(board* b);
+ckpt str2state_gatekeeping(const char* str);
 
 solv find_solution(state* s);
 void create_dauthers(state* s, int col);
@@ -83,3 +84,7 @@ cmpr comparator(state* s, int strc);
 bool is_solution(state* s, bool edge);
 void print_finstructarray(state* s);
 int backtrace_solution(state* s, bool verbose);
+
+void on_error(const char* s);
+
+

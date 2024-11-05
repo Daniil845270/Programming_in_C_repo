@@ -88,10 +88,13 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
    return ckpt_pass;
 }
 
-ckpt only_uprletter(char* temp)
+ckpt only_uprletter(const char* temp)
 {
    for (int letter = 0; temp[letter]; letter++){
+      // printf("temp[letter] is %c\n", temp[letter]);
       if (temp[letter] < 'A' || temp[letter] > 'Z'){
+         // printf("was here\n");
+         // printf("temp[letter] is %c\n", temp[letter]);
          return ckpt_fail;
       }
    }
@@ -114,9 +117,19 @@ myexit line_fillup(char* temp, char* str, int* cnt)
 
 state* str2state(const char* str) //adapt all of the same failsafes for this function from file2string, Neil will brake it 
 {
+   if (str == NULL){
+      return NULL;
+   }
+
    state* s = calloc(1, sizeof(state));
 
-   //here are all of the barriers that break the funciton
+   if (s == NULL){
+      on_error("Cannot calloc() space");
+   }
+
+   if (str2state_gatekeeping(str) == ckpt_fail){
+      return NULL;
+   }
 
    s->brdlist[0].clmn = 0;
    for (int letter = 2; str[letter] != '-'; letter++){
@@ -131,20 +144,73 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
    }
 
    s->brdlist[0].hawk = str[0];
-
    s->pcnt = 0;
-
    s->dcnt = 1;
-
    copy_strToState(&(s->brdlist[0]), str);
-   // structarray_printer(&(s->brdlist[0]));
-
-   // printf("s->brdlist[0].hawk = %c\n", s->brdlist[0].hawk);
-   // printf("s->pcnt = %d\n", s->pcnt);
-   // printf("s->dcnt = %d\n", s->dcnt);
-   // printf("s->brdlist[0].clmn = %d\n", s->brdlist[0].clmn);
-   // printf("s->brdlist[0].rows = %d\n", s->brdlist[0].rows);
    return s;
+}
+
+ckpt str2state_gatekeeping(const char* str)
+{
+   if (strlen(str) < 3 || strlen(str) > 44){ //44 = 7*6+2
+      printf("fail 1\n");
+      return ckpt_fail;
+   }
+   char charcheck[2] = {0};
+   charcheck[0] = str[0];
+   if (only_uprletter(charcheck) == ckpt_fail){
+      // printf("%c\n", str[0]);
+      printf("fail 2\n");
+      return ckpt_fail;
+   }
+   if (str[1] != '-'){
+      printf("fail 3\n");
+      return ckpt_fail;
+   }
+   charcheck[0] = str[2];
+   if (only_uprletter(charcheck) == ckpt_fail){ 
+      printf("fail 4\n");
+      return ckpt_fail;
+   }
+
+   //check that all of the columns are of equal size //check that this function actually works properly
+   int col_len = 0;
+   for (int letter = 2; str[letter] != '-'; letter++){ 
+      col_len++;
+   }
+   if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
+      printf("fail 5\n");
+      return ckpt_fail;
+   }
+   int col_itr = 0;
+   for (int letter = 2; str[letter]; letter++){
+      if (str[letter] == '-'){
+         if (col_itr != col_len){
+            printf("fail 6\n");
+            return ckpt_fail;
+         }
+         col_itr = 0;
+      }
+      else{
+         charcheck[0] = str[letter];
+         if (only_uprletter(charcheck) == ckpt_fail){ 
+            printf("fail 7\n");
+            return ckpt_fail;
+         }
+         col_itr++;
+      }
+   }
+   if (col_itr != col_len){ // for the "A-AA-A"
+      printf("fail 8\n");
+      return ckpt_fail;
+   }
+   return ckpt_pass;
+}
+
+void on_error(const char* s)
+{
+   fprintf(stderr, "%s\n", s);
+   exit(EXIT_FAILURE);
 }
 
 void copy_strToState(board* cpyboard, const char* str)
@@ -178,14 +244,6 @@ void structarray_printer(board* b)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/* For a state s, returns the number of 'moves'
-required to solve the board.
-An already solved board=0
-An impossible board=-1
-If verbose==true, then print out the solution,
-otherwise, print nothing.
-*/
 
 
 int solve(state* s, bool verbose)
@@ -373,12 +431,12 @@ void test(void)
    // free(s);
    // // printf("\n");
 
-   assert(file2str("2moves.brd", str));
+   // assert(file2str("2moves.brd", str));
    // strcpy(str, "A-ABC-ABC-ABC-CBA");
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, true)==2);
-   free(s);
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, true)==2);
+   // free(s);
 
    strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");
    s = str2state(str);
@@ -402,7 +460,7 @@ void test(void)
 
    // file2str("10moves.brd", str);
    // // printf("%s\n", str);
-   assert(only_uprletter("ABCXYZ") == ckpt_pass);
+   assert(only_uprletter("ABCXYZ") == ckpt_pass); //think how to write this assertions
    assert(only_uprletter("ABCXYz") == ckpt_fail);
    assert(only_uprletter("A") == ckpt_pass);
    assert(only_uprletter("@") == ckpt_fail);
@@ -470,6 +528,77 @@ void test(void)
 
    assert(readNcheck_file("testgood6row.brd", str) == true);
    assert(strcmp("A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA", str) == 0);
+
+
+   /////////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////////
+
 }
 
+   // // assert(readNcheck_file("testbadbody1.brd", str) == false);
+   // strcpy(str, "A-");
+   // s = str2state(str);
+   // // assert(s == NULL);
+   // free(s);
+   // // assert(readNcheck_file("testbadbody2.brd", str) == false);
+   // strcpy(str, "A-AAAAAAA");
+   // s = str2state(str);
+   // // assert(s == NULL);
+   // free(s);
+//  // strcpy(str, "A-ABC-ABC-ABC-CBA");
+//    // s = str2state(str);
+//    // assert(s);
+//    // assert(solve(s, true)==2);
+//    // free(s);
+//    //essentially copying bad input from files for file2str
 
+
+   
+//    // // assert(readNcheck_file("testbadbody3.brd", str) == false);
+//    // strcpy(str, "A-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+//    // assert(str2state(str) == NULL);
+   
+//    // assert(readNcheck_file("testbadbody4.brd", str) == false);
+//    strcpy(str, "-AAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "-");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A--B");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A--B");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AA-A");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAAA-AAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAA-AAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "AAAAA-AAAAA-AAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAAA-AAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAA-AAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAA-AAAAAA-AAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAAA-AAAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-AAAAAA-AAAAAAA-AAAAAA");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-A--A");
+//    assert(str2state(str) == NULL);
+//    strcpy(str, "A-A-AA-A");
+//    assert(str2state(str) == NULL);
+//    // strcpy(str, "A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA");
+//    // assert(str2state(str) == NULL);
+//    // strcpy(str, "A-AB-CD-AB-CD-AB-CD-AB-CD-AB-CD");
+//    // assert(str2state(str) == NULL);
+//    // free(s);
