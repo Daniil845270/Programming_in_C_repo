@@ -190,13 +190,43 @@ otherwise, print nothing.
 
 int solve(state* s, bool verbose)
 {
-   solv mysolution = find_solution(s);
+   // solv mysolution = find_solution(s);
 
-   printf("\n");
-   printf("Program finished\n");
-   print_finstructarray(s);
+   if (find_solution(s) == solution_found){
+      return backtrace_solution(s, verbose);
+   }
+   else{
+      return -1;
+   }
+   // printf("\n");
+   // printf("Program finished\n");
+   // print_finstructarray(s);
 
    return 0;
+}
+
+int backtrace_solution(state* s, bool verbose)
+{
+   int solseq[10000] = {0};
+   solseq[0] = s->dcnt;
+   int step = 1;
+   int trace = solseq[step] = s->brdlist[(s->dcnt)].parent;
+   // printf("trace = %d\n", trace);
+   while (trace != 0){
+      step++;
+      trace = s->brdlist[trace].parent;
+      solseq[step] = trace;
+      // printf("trace = %d\n", trace);
+   }
+   if (verbose == true){
+      for (int i = step; i >= 0; i--){
+         structarray_printer(&(s->brdlist[solseq[i]]));
+         if (i != 0){
+            printf("\n");
+         }
+      }
+   }
+   return step;
 }
 
 void print_finstructarray(state* s)
@@ -210,11 +240,8 @@ void print_finstructarray(state* s)
 
 solv find_solution(state* s)
 {
-   // int statrow = s->brdlist[0].rows;
-   int statcol = s->brdlist[0].clmn;
-
-   
-   while (s->solved == false){ // while (s->solved == false){
+   int statcol = s->brdlist[0].clmn; // int statrow = s->brdlist[0].rows;
+   while (s->solved == false){ // while (s->solved == false){              //this is an infinite loop, be careful with that
       for (int col = 0; col < statcol; col++){
          create_dauthers(s, col);
          if (find_match(s) == differ){
@@ -225,14 +252,13 @@ solv find_solution(state* s)
          }
          else{
             if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){ // there may be an issue with this condition
-               printf("solution_doesnt_exist\n");
                return solution_doesnt_exist;
             }
          }
       }
       (s->pcnt)++;
    }
-   return 0;
+   return solution_doesnt_exist; // subject to change
 }
 
 
@@ -291,9 +317,9 @@ void create_dauthers(state* s, int col)
 {
    cpyParDtr(s);
    shift_tile(s, col);
-   printf("create_dauthers\n");
-   printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
-   structarray_printer(&(s->brdlist[(s->dcnt)]));
+   // printf("create_dauthers\n");
+   // printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
+   // structarray_printer(&(s->brdlist[(s->dcnt)]));
 
 }
 
@@ -336,13 +362,20 @@ void test(void)
    char str[(BRDSZ*BRDSZ+BRDSZ+2)];
    state* s;
 
-   // assert(file2str("2moves.brd", str));
-   strcpy(str, "A-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
+   // // assert(file2str("2moves.brd", str));
+   // strcpy(str, "A-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
+   // s = str2state(str);
+   // assert(s);
+   // solve(s, true);
+   // free(s);
+   // // printf("\n");
+
+   assert(file2str("2moves.brd", str));
+   // strcpy(str, "A-ABC-ABC-ABC-CBA");
    s = str2state(str);
    assert(s);
-   solve(s, true);
+   assert(solve(s, true)==2);
    free(s);
-   // printf("\n");
 
    strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");
    s = str2state(str);

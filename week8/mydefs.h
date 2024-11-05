@@ -81,5 +81,5 @@ void shift_tile(state* s, int col);
 cmpr find_match(state* s);
 cmpr comparator(state* s, int strc);
 bool is_solution(state* s);
-
 void print_finstructarray(state* s);
+int backtrace_solution(state* s, bool verbose);
