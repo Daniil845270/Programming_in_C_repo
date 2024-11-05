@@ -24,6 +24,9 @@ typedef enum myexit myexit;
 enum solv {solution_doesnt_exist, solution_found};
 typedef enum solv solv;
 
+enum cmpr {differ, same};
+typedef enum cmpr cmpr;
+
 
 // Here define struct state -
 // it might look something like:
@@ -75,6 +78,8 @@ solv find_solution(state* s);
 void create_dauthers(state* s, int col);
 void cpyParDtr(state* s);
 void shift_tile(state* s, int col);
-bool find_match(state* s);
-bool comparator(state* s, int strc);
+cmpr find_match(state* s);
+cmpr comparator(state* s, int strc);
 bool is_solution(state* s);
+
+void print_finstructarray(state* s);

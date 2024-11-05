@@ -132,7 +132,7 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 
    s->brdlist[0].hawk = str[0];
 
-   s->pcnt = -10;
+   s->pcnt = 0;
 
    s->dcnt = 1;
 
@@ -192,51 +192,55 @@ int solve(state* s, bool verbose)
 {
    solv mysolution = find_solution(s);
 
+   printf("\n");
+   printf("Program finished\n");
+   print_finstructarray(s);
+
    return 0;
+}
+
+void print_finstructarray(state* s)
+{
+   for (int struc = 1; struc <= s->dcnt; struc++){
+      printf("Index = %d, hawk is %c\n", struc, s->brdlist[struc].hawk);
+      structarray_printer(&(s->brdlist[struc]));
+      printf("\n");
+   }
 }
 
 solv find_solution(state* s)
 {
-   int statrow = s->brdlist[0].rows;
+   // int statrow = s->brdlist[0].rows;
    int statcol = s->brdlist[0].clmn;
-   while (s->solved == false){
+
+   
+   while (s->solved == false){ // while (s->solved == false){
       for (int col = 0; col < statcol; col++){
          create_dauthers(s, col);
-         if (find_match(s) == false){
-            if (is_solution(s) == true){
+         if (find_match(s) == differ){
+            if (is_solution(s) == true){ 
                return solution_found;
             }
             (s->dcnt)++;
          }
          else{
-            if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){
+            if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){ // there may be an issue with this condition
+               printf("solution_doesnt_exist\n");
                return solution_doesnt_exist;
             }
          }
       }
-      (s->dcnt)++;
+      (s->pcnt)++;
    }
-
-
-   // create_dauthers(s, 0);
-
-   // structarray_printer(&(s->brdlist[1]));
-   // // printf("\n");
-
-   
-
-   // // printf("hawk is %c\n", s->brdlist[1].hawk);
-
-   // // is_solution(s);
-   // assert(is_solution(s) == true);
-
    return 0;
 }
+
+
 
 bool is_solution(state* s)
 {
    int di = s->dcnt;
-   int pi = s->pcnt;
+   // int pi = s->pcnt;
    int frow = s->brdlist[0].rows;
    int fcol =  s->brdlist[0].clmn;
 
@@ -256,17 +260,17 @@ bool is_solution(state* s)
    return true;
 }
 
-bool find_match(state* s)
+cmpr find_match(state* s)
 {
    for (int strc = 0; strc < s->dcnt; strc++){
-      if (comparator(s, strc) == false){
-         return true;
+      if (comparator(s, strc) == same){
+         return same;
       }
    }
-   return false;
+   return differ;
 }
 
-bool comparator(state* s, int strc)
+cmpr comparator(state* s, int strc)
 {
    int di = s->dcnt;
    // int pi = s->pcnt;
@@ -276,30 +280,21 @@ bool comparator(state* s, int strc)
    for (int row = 0; row < statrow; row++){
       for (int col = 0; col < statcol; col++){
          if (s->brdlist[strc].brd[row][col] != s->brdlist[di].brd[row][col]){
-            return false;
+            return differ;
          }
       }
    }
-   return true;
+   return same;
 }
 
 void create_dauthers(state* s, int col)
 {
    cpyParDtr(s);
-   // structarray_printer(&(s->brdlist[1]));
-   // printf("\n");
    shift_tile(s, col);
-   // structarray_printer(&(s->brdlist[1]));
-   // printf("\n");
+   printf("create_dauthers\n");
+   printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
+   structarray_printer(&(s->brdlist[(s->dcnt)]));
 
-   // printf("arr1\n");
-   // structarray_printer(&(s->brdlist[0]));
-   // printf("arr2\n");
-   // structarray_printer(&(s->brdlist[1]));
-   // printf("arr3\n");
-   // structarray_printer(&(s->brdlist[2]));
-   // printf("arr4\n");
-   // structarray_printer(&(s->brdlist[3]));
 }
 
 void shift_tile(state* s, int col)
@@ -307,7 +302,7 @@ void shift_tile(state* s, int col)
    int di = s->dcnt;
    int pi = s->pcnt;
    int frow = s->brdlist[0].rows;
-   int fcol =  s->brdlist[0].clmn;
+   // int fcol =  s->brdlist[0].clmn;
    s->brdlist[di].hawk = s->brdlist[di].brd[(frow - 1)][col];
 
    for (int row = frow - 1; row > 0; row--){
@@ -342,7 +337,7 @@ void test(void)
    state* s;
 
    // assert(file2str("2moves.brd", str));
-   strcpy(str, "S-ABC-BBC-CBC-DBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
+   strcpy(str, "A-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
    s = str2state(str);
    assert(s);
    solve(s, true);
@@ -442,13 +437,3 @@ void test(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-// /* Many of other functions, as required */
