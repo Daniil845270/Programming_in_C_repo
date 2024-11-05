@@ -121,14 +121,14 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
       return NULL;
    }
 
+   if (str2state_gatekeeping(str) == ckpt_fail){
+      return NULL;
+   }
+
    state* s = calloc(1, sizeof(state));
 
    if (s == NULL){
       on_error("Cannot calloc() space");
-   }
-
-   if (str2state_gatekeeping(str) == ckpt_fail){
-      return NULL;
    }
 
    s->brdlist[0].clmn = 0;
@@ -153,23 +153,23 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 ckpt str2state_gatekeeping(const char* str)
 {
    if (strlen(str) < 3 || strlen(str) > 44){ //44 = 7*6+2
-      printf("fail 1\n");
+      // printf("fail 1\n");
       return ckpt_fail;
    }
    char charcheck[2] = {0};
    charcheck[0] = str[0];
    if (only_uprletter(charcheck) == ckpt_fail){
       // printf("%c\n", str[0]);
-      printf("fail 2\n");
+      // printf("fail 2\n");
       return ckpt_fail;
    }
    if (str[1] != '-'){
-      printf("fail 3\n");
+      // printf("fail 3\n");
       return ckpt_fail;
    }
    charcheck[0] = str[2];
    if (only_uprletter(charcheck) == ckpt_fail){ 
-      printf("fail 4\n");
+      // printf("fail 4\n");
       return ckpt_fail;
    }
 
@@ -179,14 +179,20 @@ ckpt str2state_gatekeeping(const char* str)
       col_len++;
    }
    if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
-      printf("fail 5\n");
+      // printf("fail 5\n");
       return ckpt_fail;
    }
+   int row_cnt = 1;
    int col_itr = 0;
    for (int letter = 2; str[letter]; letter++){
       if (str[letter] == '-'){
+         row_cnt++;
+         if (row_cnt == 7){
+            // printf("fail 9\n");
+            return ckpt_fail;
+         }
          if (col_itr != col_len){
-            printf("fail 6\n");
+            // printf("fail 6\n");
             return ckpt_fail;
          }
          col_itr = 0;
@@ -194,14 +200,14 @@ ckpt str2state_gatekeeping(const char* str)
       else{
          charcheck[0] = str[letter];
          if (only_uprletter(charcheck) == ckpt_fail){ 
-            printf("fail 7\n");
+            // printf("fail 7\n");
             return ckpt_fail;
          }
          col_itr++;
       }
    }
    if (col_itr != col_len){ // for the "A-AA-A"
-      printf("fail 8\n");
+      // printf("fail 8\n");
       return ckpt_fail;
    }
    return ckpt_pass;
@@ -532,73 +538,123 @@ void test(void)
 
    /////////////////////////////////////////////////////////////////////////////
    //////////////////////////////////////////////////////////////////////////////
+   strcpy(str, "A-");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
 
+   strcpy(str, "A-AAAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   // strcpy(str, "A-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+   // s = str2state(str);
+   // assert(s == NULL);
+   // free(s);
+
+   strcpy(str, "-AAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "-");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A--B");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AA-A");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAAA-AAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAA-AAAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAA-AAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAA-AAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "AAAAA-AAAAA-AAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAA-AAAAAA-AAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAA-AAAAAA-AAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAA-AAAAAA-AAAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-AAAAAA-AAAAAAA-AAAAAA");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-A--A");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "A-A-AA-A");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   // strcpy(str, "A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA"); //invalid user input is not checked
+   // s = str2state(str);
+   // assert(s == NULL);
+   // free(s);
+
+   strcpy(str, "A-AB-CD-AB-CD-AB-CD-AB-CD-AB-CD"); //this assertion failed
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
+
+   strcpy(str, "");
+   s = str2state(str);
+   assert(s == NULL);
+   free(s);
 }
-
-   // // assert(readNcheck_file("testbadbody1.brd", str) == false);
-   // strcpy(str, "A-");
-   // s = str2state(str);
-   // // assert(s == NULL);
-   // free(s);
-   // // assert(readNcheck_file("testbadbody2.brd", str) == false);
-   // strcpy(str, "A-AAAAAAA");
-   // s = str2state(str);
-   // // assert(s == NULL);
-   // free(s);
-//  // strcpy(str, "A-ABC-ABC-ABC-CBA");
-//    // s = str2state(str);
-//    // assert(s);
-//    // assert(solve(s, true)==2);
-//    // free(s);
-//    //essentially copying bad input from files for file2str
-
-
-   
-//    // // assert(readNcheck_file("testbadbody3.brd", str) == false);
-//    // strcpy(str, "A-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-//    // assert(str2state(str) == NULL);
-   
-//    // assert(readNcheck_file("testbadbody4.brd", str) == false);
-//    strcpy(str, "-AAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "-");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A--B");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A--B");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AA-A");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAAA-AAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAA-AAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "AAAAA-AAAAA-AAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAAA-AAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAA-AAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAA-AAAAAA-AAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAAA-AAAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-AAAAAA-AAAAAAA-AAAAAA");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-A--A");
-//    assert(str2state(str) == NULL);
-//    strcpy(str, "A-A-AA-A");
-//    assert(str2state(str) == NULL);
-//    // strcpy(str, "A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA");
-//    // assert(str2state(str) == NULL);
-//    // strcpy(str, "A-AB-CD-AB-CD-AB-CD-AB-CD-AB-CD");
-//    // assert(str2state(str) == NULL);
-//    // free(s);
