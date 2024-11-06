@@ -1079,6 +1079,14 @@ void test(void)
    // printf("Passed 6X6 letter gatekeeping imposs\n");
    // printf("\n");
 
+// A
+// -ABCDEF
+// -BCDEFA
+// -CDEFAB
+// -DEFABC
+// -EFABCD
+// -FABCDE
+
    // printf("Entered 6X6 letter poss A\n");   //took 40 mins and 270000 cases when I killed it             
    // strcpy(str, "A-ABCDEF-BCDEFA-CDEFAB-DEFABC-EFABCD-FABCDE");
    // s = str2state(str);
@@ -1174,15 +1182,15 @@ void test(void)
    printf("Passed 6X6 letter poss 2nd randswaps\n");
    printf("\n");
 
-   // printf("Entered 6X6 letter poss 4\n");                          
-   // strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF");
-   // s = str2state(str);
-   // assert(s);
-   // assert(solve(s, false) > 0);
-   // printf("Solved in %d moves and %d iterations\n", solve(s, true), s->dcnt);
-   // free(s);
-   // printf("Passed 6X6 letter poss 2nd randswaps\n");
-   // printf("\n");
+   printf("Entered 6X6 letter poss 4\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, true), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
 
 // // A
 // // -AA
