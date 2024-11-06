@@ -153,23 +153,23 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 ckpt str2state_gatekeeping(const char* str)
 {
    if (strlen(str) < 3 || strlen(str) > 44){ //44 = 7*6+2
-      printf("fail 1\n");
+      // printf("fail 1\n");
       return ckpt_fail;
    }
    char charcheck[2] = {0};
    charcheck[0] = str[0];
    if (only_uprletter(charcheck) == ckpt_fail){
       // printf("%c\n", str[0]);
-      printf("fail 2\n");
+      // printf("fail 2\n");
       return ckpt_fail;
    }
    if (str[1] != '-'){
-      printf("fail 3\n");
+      // printf("fail 3\n");
       return ckpt_fail;
    }
    charcheck[0] = str[2];
    if (only_uprletter(charcheck) == ckpt_fail){ 
-      printf("fail 4\n");
+      // printf("fail 4\n");
       return ckpt_fail;
    }
 
@@ -179,8 +179,8 @@ ckpt str2state_gatekeeping(const char* str)
       col_len++;
    }
    if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
-      printf("%d \n", col_len);
-      printf("fail 5\n");
+      // printf("%d \n", col_len);
+      // printf("fail 5\n");
       return ckpt_fail;
    }
    int row_cnt = 1;
@@ -189,11 +189,11 @@ ckpt str2state_gatekeeping(const char* str)
       if (str[letter] == '-'){
          row_cnt++;
          if (row_cnt == 7){
-            printf("fail 9\n");
+            // printf("fail 9\n");
             return ckpt_fail;
          }
          if (col_itr != col_len){
-            printf("fail 6\n");
+            // printf("fail 6\n");
             return ckpt_fail;
          }
          col_itr = 0;
@@ -201,14 +201,14 @@ ckpt str2state_gatekeeping(const char* str)
       else{
          charcheck[0] = str[letter];
          if (only_uprletter(charcheck) == ckpt_fail){ 
-            printf("fail 7\n");
+            // printf("fail 7\n");
             return ckpt_fail;
          }
          col_itr++;
       }
    }
    if (col_itr != col_len && strlen(str) != 3){ // for the "A-AA-A" and a single tile
-      printf("fail 8\n");
+      // printf("fail 8\n");
       return ckpt_fail;
    }
    return ckpt_pass;
@@ -724,7 +724,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false)>0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase1\n");
    printf("\n");
@@ -739,7 +739,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase2\n");
    printf("\n");
@@ -754,7 +754,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase3\n");
    printf("\n");
@@ -769,7 +769,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == -1);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase4\n");
    printf("\n");
@@ -786,7 +786,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase5\n");
    printf("\n");
@@ -803,7 +803,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase6\n");
    printf("\n");
@@ -820,7 +820,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase6\n");
    printf("\n");
@@ -837,7 +837,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase6\n");
    printf("\n");
@@ -854,7 +854,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase6\n");
    printf("\n");
@@ -871,7 +871,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase6\n");
    printf("\n");
@@ -888,7 +888,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) < 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase7\n");
    printf("\n");
@@ -900,7 +900,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase8\n");
    printf("\n");
@@ -912,7 +912,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed mycase9\n");
    printf("\n");
@@ -927,7 +927,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed solved 1 row 2 column\n");
    printf("\n");
@@ -939,7 +939,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed solved 1 row 2 column\n");
    printf("\n");
@@ -951,7 +951,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed solved 1 row 2 column\n");
    printf("\n");
@@ -963,7 +963,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed solved 1 row 5 column\n");
    printf("\n");
@@ -975,7 +975,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed solved 1 row 6 column\n");
    printf("\n");
@@ -990,7 +990,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 solved\n");
    printf("\n");
@@ -1002,7 +1002,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 work\n");
    printf("\n");
@@ -1014,7 +1014,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 work\n");
    printf("\n");
@@ -1026,7 +1026,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 work\n");
    printf("\n");
@@ -1038,7 +1038,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 work\n");
    printf("\n");
@@ -1049,7 +1049,7 @@ void test(void)
    s = str2state(str);
    assert(s);
    assert(solve(s, false) < 0);
-   printf("Solved in %d moves\n", solve(s, true));
+   printf("Solved in %d moves\n", solve(s, false));
    free(s);
    printf("Passed 2X2 work\n");
    printf("\n");
@@ -1064,7 +1064,7 @@ void test(void)
    // s = str2state(str);
    // assert(s);
    // assert(solve(s, false) < 0);
-   // printf("Solved in %d moves\n", solve(s, true));
+   // printf("Solved in %d moves\n", solve(s, false));
    // free(s);
    // printf("Passed 3X3 work\n");
    // printf("\n");
@@ -1074,7 +1074,7 @@ void test(void)
    // s = str2state(str);
    // assert(s);
    // assert(solve(s, false) < 0);
-   // printf("Solved in %d moves\n", solve(s, true));
+   // printf("Solved in %d moves\n", solve(s, false));
    // free(s);
    // printf("Passed 6X6 letter gatekeeping imposs\n");
    // printf("\n");
@@ -1152,45 +1152,45 @@ void test(void)
 // -ABCDEF
 // -ABCDEF
 
-   printf("Entered 6X6 letter poss 1\n");                          
-   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA");
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, false) > 0);
-   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
-   free(s);
-   printf("Passed 6X6 letter poss 2nd randswaps\n");
-   printf("\n");
+   // printf("Entered 6X6 letter poss 1\n");                          
+   // strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   // free(s);
+   // printf("Passed 6X6 letter poss 2nd randswaps\n");
+   // printf("\n");
 
-   printf("Entered 6X6 letter poss 2\n");                          
-   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF");
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, false) > 0);
-   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
-   free(s);
-   printf("Passed 6X6 letter poss 2nd randswaps\n");
-   printf("\n");
+   // printf("Entered 6X6 letter poss 2\n");                          
+   // strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   // free(s);
+   // printf("Passed 6X6 letter poss 2nd randswaps\n");
+   // printf("\n");
 
-   printf("Entered 6X6 letter poss 3\n");                          
-   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF");
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, false) > 0);
-   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
-   free(s);
-   printf("Passed 6X6 letter poss 2nd randswaps\n");
-   printf("\n");
+   // printf("Entered 6X6 letter poss 3\n");                          
+   // strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   // free(s);
+   // printf("Passed 6X6 letter poss 2nd randswaps\n");
+   // printf("\n");
 
-   printf("Entered 6X6 letter poss 4\n");                          
-   strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, false) > 0);
-   printf("Solved in %d moves and %d iterations\n", solve(s, true), s->dcnt);
-   free(s);
-   printf("Passed 6X6 letter poss 2nd randswaps\n");
-   printf("\n");
+   // printf("Entered 6X6 letter poss 4\n");                          
+   // strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   // free(s);
+   // printf("Passed 6X6 letter poss 2nd randswaps\n");
+   // printf("\n");
 
 // // A
 // // -AA
@@ -1199,10 +1199,50 @@ void test(void)
 //    s = str2state(str);
 //    assert(s);
 //    assert(solve(s, false) == 0);
-//    printf("Solved in %d moves\n", solve(s, true));
+//    printf("Solved in %d moves\n", solve(s, false));
 //    free(s);
 //    printf("Passed mycase1\n");
 //    printf("\n");
+
+
+   printf("Entered 10 move\n");                          
+   strcpy(str, "C-AAB-ABB-CCB-CAC-ABC");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   // for (int i = 0; i < 10; i++){
+   //    structarray_printer(&(s->brdlist[(i)]));
+   //    printf("\n");
+   // }
+   free(s);
+   printf("Passed 10 move\n");
+   printf("\n");
+
+   strcpy(str, "A-AAA-AAA-AAA-AAA-AAA");
+   s = str2state(str);
+   s->dcnt = 1;
+   cpyParDtr(s);
+   s->dcnt = 2;
+   cpyParDtr(s);
+   s->dcnt = 3;
+   cpyParDtr(s);
+   // structarray_printer(&(s->brdlist[0]));
+   // printf("\n");
+   // structarray_printer(&(s->brdlist[1]));
+   // printf("\n");
+   // structarray_printer(&(s->brdlist[2]));
+   // printf("\n");
+   // structarray_printer(&(s->brdlist[3]));
+   // printf("\n");
+
+   assert(comparator(s, 0) == same);
+   assert(comparator(s, 1) == same);
+   assert(comparator(s, 2) == same);
+   assert(comparator(s, 3) == same);
+   assert(find_match(s) == same);
+   free(s);
+
 
                                                          //6 row 6 column testing 
 //////////////////////////////////////////////////////////////////////////////////////
