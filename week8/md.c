@@ -314,25 +314,44 @@ solv find_solution(state* s)
    int statcol = s->brdlist[0].clmn; // int statrow = s->brdlist[0].rows;
    while (s->solved == false){ // while (s->solved == false){              //this is an infinite loop, be careful with that (i don't think I actually set s->solved to true anywhere)
       for (int col = 0; col < statcol; col++){
-         create_dauthers(s, col);
-         if (find_match(s) == differ){
-            if (is_solution(s, false) == true){ 
-               return solution_found;
+         // create_dauthers(s, col);
+         cpyParDtr(s);
+         if (finclmn_check(s, col) == false){
+            shift_tile(s, col);
+            if (find_match(s) == differ){
+               if (is_solution(s, false) == true){ 
+                  return solution_found;
+               }
+               (s->dcnt)++;
             }
-            (s->dcnt)++;
          }
-         else{
-            if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){ // there may be an issue with this condition
-               return solution_doesnt_exist;
-            }
+
+         if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){ // there may be an issue with this condition
+            return solution_doesnt_exist;
          }
       }
       (s->pcnt)++;
+      // printf("%d\n", s->dcnt);
    }
    return solution_doesnt_exist; // subject to change
 }
 
+bool finclmn_check(state* s, int col)
+{
+   int di = s->dcnt;
+   int frow = s->brdlist[0].rows;
 
+   if (frow < 2){
+      return true;
+   }
+
+   for (int row = frow - 1; row > 0; row--){
+      if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
+         return false;
+      }
+   }
+   return true;
+}
 
 bool is_solution(state* s, bool edge)
 {
@@ -384,15 +403,15 @@ cmpr comparator(state* s, int strc)
    return same;
 }
 
-void create_dauthers(state* s, int col)
-{
-   cpyParDtr(s);
-   shift_tile(s, col);
-   // printf("create_dauthers\n");
-   // printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
-   // structarray_printer(&(s->brdlist[(s->dcnt)]));
+// void create_dauthers(state* s, int col)
+// {
+//    cpyParDtr(s);
+//    shift_tile(s, col);
+//    // printf("create_dauthers\n");
+//    // printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
+//    // structarray_printer(&(s->brdlist[(s->dcnt)]));
 
-}
+// }
 
 void shift_tile(state* s, int col)
 {
@@ -1182,15 +1201,15 @@ void test(void)
    // printf("Passed 6X6 letter poss 2nd randswaps\n");
    // printf("\n");
 
-   // printf("Entered 6X6 letter poss 4\n");                          
-   // strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
-   // s = str2state(str);
-   // assert(s);
-   // assert(solve(s, false) > 0);
-   // printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
-   // free(s);
-   // printf("Passed 6X6 letter poss 2nd randswaps\n");
-   // printf("\n");
+   printf("Entered 6X6 letter poss 4\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
 
 // // A
 // // -AA

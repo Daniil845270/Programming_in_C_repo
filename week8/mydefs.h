@@ -71,12 +71,14 @@ ckpt fillcheck_hawk(FILE* fp, char* temp, char* str, int* cnt);
 ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen);
 
+bool finclmn_check(state* s, int col);
+
 void copy_strToState(board* board, const char* str);
 void structarray_printer(board* b);
 ckpt str2state_gatekeeping(const char* str);
 
 solv find_solution(state* s);
-void create_dauthers(state* s, int col);
+// void create_dauthers(state* s, int col);
 void cpyParDtr(state* s);
 void shift_tile(state* s, int col);
 cmpr find_match(state* s);
