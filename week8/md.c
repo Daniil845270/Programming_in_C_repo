@@ -153,23 +153,23 @@ state* str2state(const char* str) //adapt all of the same failsafes for this fun
 ckpt str2state_gatekeeping(const char* str)
 {
    if (strlen(str) < 3 || strlen(str) > 44){ //44 = 7*6+2
-      // printf("fail 1\n");
+      printf("fail 1\n");
       return ckpt_fail;
    }
    char charcheck[2] = {0};
    charcheck[0] = str[0];
    if (only_uprletter(charcheck) == ckpt_fail){
       // printf("%c\n", str[0]);
-      // printf("fail 2\n");
+      printf("fail 2\n");
       return ckpt_fail;
    }
    if (str[1] != '-'){
-      // printf("fail 3\n");
+      printf("fail 3\n");
       return ckpt_fail;
    }
    charcheck[0] = str[2];
    if (only_uprletter(charcheck) == ckpt_fail){ 
-      // printf("fail 4\n");
+      printf("fail 4\n");
       return ckpt_fail;
    }
 
@@ -179,7 +179,7 @@ ckpt str2state_gatekeeping(const char* str)
       col_len++;
    }
    if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
-      // printf("fail 5\n");
+      printf("fail 5\n");
       return ckpt_fail;
    }
    int row_cnt = 1;
@@ -188,11 +188,11 @@ ckpt str2state_gatekeeping(const char* str)
       if (str[letter] == '-'){
          row_cnt++;
          if (row_cnt == 7){
-            // printf("fail 9\n");
+            printf("fail 9\n");
             return ckpt_fail;
          }
          if (col_itr != col_len){
-            // printf("fail 6\n");
+            printf("fail 6\n");
             return ckpt_fail;
          }
          col_itr = 0;
@@ -200,20 +200,20 @@ ckpt str2state_gatekeeping(const char* str)
       else{
          charcheck[0] = str[letter];
          if (only_uprletter(charcheck) == ckpt_fail){ 
-            // printf("fail 7\n");
+            printf("fail 7\n");
             return ckpt_fail;
          }
          col_itr++;
       }
    }
-   if (col_itr != col_len){ // for the "A-AA-A"
-      // printf("fail 8\n");
+   if (col_itr != col_len && strlen(str) != 3){ // for the "A-AA-A" and a single tile
+      printf("fail 8\n");
       return ckpt_fail;
    }
    return ckpt_pass;
 }
 
-void on_error(const char* s)
+void on_error(const char* s) //from Programming in C database
 {
    fprintf(stderr, "%s\n", s);
    exit(EXIT_FAILURE);
@@ -263,6 +263,7 @@ int solve(state* s, bool verbose)
       return backtrace_solution(s, verbose);
    }
    else{
+      printf("%d\n", s->dcnt);
       return -1;
    }
    // printf("\n");
@@ -648,6 +649,11 @@ void test(void)
    assert(s == NULL);
    free(s);
 
+   strcpy(str, "A-B");
+   s = str2state(str);
+   assert(s != NULL);
+   free(s);
+
    strcpy(str, "");
    s = str2state(str);
    assert(s == NULL);
@@ -657,4 +663,62 @@ void test(void)
    s = str2state(str);
    assert(s == NULL);
    free(s);
+
+   /////////////////////////////////////////////////////////////////////////////
+   //////////////////////////////////////////////////////////////////////////////
+   strcpy(str, "K-AB-GH"); //this one is 60
+   s = str2state(str);
+   assert(solve(s, false)==-1);
+   free(s);
+
+   printf("Passed mycase1\n"); 
+
+   // strcpy(str, "K-AB-GH-MN"); 
+   // s = str2state(str);
+   // assert(solve(s, false)==-1);
+   // free(s);
+
+   // printf("Passed mycase2\n");
+
+
+   // strcpy(str, "K-ABC-GHI-MNO"); //more than 15 mins this one already take way too long to compute. I guess lets say if it reaches a certain number just return -1, becuase it is probably infinite
+   // s = str2state(str);
+   // assert(solve(s, false)==-1);
+   // free(s);
+
+   // printf("Passed mycase2\n");
+
+   // strcpy(str, "K-ABCDEF-GHIJKL-MNOPQR-STUVWX-YZABCD-EFGHIJ");
+   // s = str2state(str);
+   // assert(solve(s, false)==-1);
+   // free(s);
+
+   // printf("Passed mycase3\n");
+
+   // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+   // A
+   // AAAAAA
+   // AAAAAA
+   // AAAAAA
+   // AAAAAA
+   // AAAAAA
+   // AAAAAA
+   // ///// 
+
+   // B
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAA
+
+   // A
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+   // AAAAAB
+
 }

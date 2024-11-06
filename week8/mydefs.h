@@ -12,7 +12,7 @@
 
 #define BRDSZ 6
 #define BIG_NUM 1000
-#define MAXBRDS 200000 
+#define MAXBRDS 2000000 
 #define POS long unsigned int
 
 enum ckpt {ckpt_fail, ckpt_pass};
