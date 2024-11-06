@@ -175,10 +175,11 @@ ckpt str2state_gatekeeping(const char* str)
 
    //check that all of the columns are of equal size //check that this function actually works properly
    int col_len = 0;
-   for (int letter = 2; str[letter] != '-'; letter++){ 
+   for (int letter = 2; str[letter] != '-' && str[letter]; letter++){ 
       col_len++;
    }
    if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
+      printf("%d \n", col_len);
       printf("fail 5\n");
       return ckpt_fail;
    }
@@ -254,7 +255,9 @@ void structarray_printer(board* b)
 
 int solve(state* s, bool verbose)
 {
-   // solv mysolution = find_solution(s);
+   if (s == NULL){
+      return -1;
+   }
 
    if (is_solution(s, true) == true){
       return 0;
@@ -263,7 +266,7 @@ int solve(state* s, bool verbose)
       return backtrace_solution(s, verbose);
    }
    else{
-      printf("%d\n", s->dcnt);
+      // printf("%d\n", s->dcnt);
       return -1;
    }
    // printf("\n");
@@ -430,21 +433,6 @@ void test(void)
    char str[(BRDSZ*BRDSZ+BRDSZ+2)];
    state* s;
 
-   // // assert(file2str("2moves.brd", str));
-   // strcpy(str, "A-ABC-ABC-ABC-CBA"); //change back to A-ABC-ABC-ABC-CBA A-A-A-A-A-A-A S-ABC-BBC-CBC-DBA
-   // s = str2state(str);
-   // assert(s);
-   // solve(s, true);
-   // free(s);
-   // // printf("\n");
-
-   // assert(file2str("2moves.brd", str));
-   // strcpy(str, "A-ABC-ABC-ABC-CBA");
-   // s = str2state(str);
-   // assert(s);
-   // assert(solve(s, true)==2);
-   // free(s);
-
    strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");
    s = str2state(str);
    assert(s);
@@ -542,12 +530,12 @@ void test(void)
    strcpy(str, "A-");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    // strcpy(str, "A-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
    // s = str2state(str);
@@ -557,87 +545,87 @@ void test(void)
    strcpy(str, "-AAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "-");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A--B");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AA-A");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAAA-AAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAA-AAAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAA-AAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAA-AAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "AAAAA-AAAAA-AAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAA-AAAAAA-AAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAA-AAAAAA-AAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAA-AAAAAA-AAAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-AAAAAA-AAAAAAA-AAAAAA");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+ 
 
    strcpy(str, "A-A--A");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-A-AA-A");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    // strcpy(str, "A-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA-AAAAAA"); //invalid user input is not checked
    // s = str2state(str);
@@ -647,21 +635,50 @@ void test(void)
    strcpy(str, "A-AB-CD-AB-CD-AB-CD-AB-CD-AB-CD"); //this assertion failed
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "A-B");
    s = str2state(str);
-   assert(s != NULL);
+   assert(s);
    free(s);
 
    strcpy(str, "");
    s = str2state(str);
    assert(s == NULL);
-   free(s);
+
 
    strcpy(str, "");
    s = str2state(str);
    assert(s == NULL);
+
+   strcpy(str, "Z-Z");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   strcpy(str, "Z-ZZ");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   strcpy(str, "Z-ZZZ");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   strcpy(str, "Z-ZZZZ");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   strcpy(str, "Z-ZZZZZ");
+   s = str2state(str);
+   assert(s);
+   free(s);
+
+   strcpy(str, "Z-ZZZZZZ");
+   s = str2state(str);
+   assert(s);
    free(s);
 
    /////////////////////////////////////////////////////////////////////////////
@@ -695,30 +712,492 @@ void test(void)
 
    // printf("Passed mycase3\n");
 
-   // ABCDEFGHIJKLMNOPQRSTUVWXYZ
-   // A
-   // AAAAAA
-   // AAAAAA
-   // AAAAAA
-   // AAAAAA
-   // AAAAAA
-   // AAAAAA
-   // ///// 
+   //lets start off easy, 2*4 test
 
-   // B
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAA
+// A
+// -AB
+// -AB
+// -AB
+// -BA
+   printf("Entered mycase1\n");
+   strcpy(str, "A-AB-AB-AB-BA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false)>0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase1\n");
+   printf("\n");
+   
+// A
+// -A
+// -A
+// -A
+// -A
+   printf("Entered mycase2\n");
+   strcpy(str, "A-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase2\n");
+   printf("\n");
 
-   // A
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
-   // AAAAAB
+// A
+// -B
+// -A
+// -A
+// -A
+   printf("Entered mycase3\n");
+   strcpy(str, "A-B-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase3\n");
+   printf("\n");
 
+// A
+// -B
+// -B
+// -A
+// -A
+   printf("Entered mycase4\n");
+   strcpy(str, "A-B-B-A-A");                                    //what should I do with this? Like when it is supposed to return 
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == -1);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase4\n");
+   printf("\n");
+
+// A
+// -A
+// -A
+// -A
+// -A
+// -A
+// -A
+   printf("Entered mycase5\n");
+   strcpy(str, "A-A-A-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase5\n");
+   printf("\n");
+
+// A
+// -B
+// -A
+// -A
+// -A
+// -A
+// -A
+   printf("Entered mycase6\n");
+   strcpy(str, "A-B-A-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase6\n");
+   printf("\n");
+
+// A
+// -A
+// -B
+// -A
+// -A
+// -A
+// -A
+   printf("Entered mycase6\n");
+   strcpy(str, "A-A-B-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase6\n");
+   printf("\n");
+
+// A
+// -A
+// -A
+// -B
+// -A
+// -A
+// -A
+   printf("Entered mycase6\n");
+   strcpy(str, "A-A-A-B-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase6\n");
+   printf("\n");
+
+// A
+// -A
+// -A
+// -A
+// -B
+// -A
+// -A
+   printf("Entered mycase6\n");
+   strcpy(str, "A-A-A-A-B-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase6\n");
+   printf("\n");
+
+// A
+// -A
+// -A
+// -A
+// -A
+// -B
+// -A
+   printf("Entered mycase6\n");
+   strcpy(str, "A-A-A-A-A-B-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase6\n");
+   printf("\n");
+
+// A
+// -B
+// -B
+// -A
+// -A
+// -A
+// -A
+   printf("Entered mycase7\n");
+   strcpy(str, "A-B-B-A-A-A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) < 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase7\n");
+   printf("\n");
+
+// A
+// -A
+   printf("Entered mycase8\n");
+   strcpy(str, "A-A");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase8\n");
+   printf("\n");
+
+// A
+// -B
+   printf("Entered mycase9\n");                       //one tile boards are always already solved
+   strcpy(str, "A-B");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed mycase9\n");
+   printf("\n");
+                                                         //one column testing
+   /////////////////////////////////////////////////////////////////////////////////
+                                                         //one row testing 
+
+// A
+// -AA
+   printf("Entered solved 1 row 2 column\n");                          //2 column cases
+   strcpy(str, "A-AA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed solved 1 row 2 column\n");
+   printf("\n");
+
+// A
+// -BA
+   printf("Entered solved 1 row 2 column\n");                          
+   strcpy(str, "A-BA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed solved 1 row 2 column\n");
+   printf("\n");
+
+// A
+// -AB
+   printf("Entered solved 1 row 2 column\n");                          
+   strcpy(str, "A-BB");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed solved 1 row 2 column\n");
+   printf("\n");
+
+// A
+// -AAAAA
+   printf("Entered solved 1 row 5 column\n");                          
+   strcpy(str, "A-AAAAA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed solved 1 row 5 column\n");
+   printf("\n");
+
+// A
+// -AAAAAA
+   printf("Entered solved 1 row 6 column\n");                          
+   strcpy(str, "A-AAAAAA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed solved 1 row 6 column\n");
+   printf("\n");
+
+                                                         //one row testing 
+///////////////////////////////////////////////////////////////////////////////////////
+                                                         //2 row 2 column testing
+// A
+// --AA-AA
+   printf("Entered 2X2 solved\n");                          
+   strcpy(str, "A-AA-AA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 solved\n");
+   printf("\n");
+
+// A
+// -BA-AA
+   printf("Entered 2X2 work\n");                          
+   strcpy(str, "A-BA-AA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 work\n");
+   printf("\n");
+
+// A
+// -AB-AA
+   printf("Entered 2X2 work\n");                          
+   strcpy(str, "A-AB-AA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 work\n");
+   printf("\n");
+
+// A
+// -AA-BA
+   printf("Entered 2X2 work\n");                          
+   strcpy(str, "A-AA-BA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 work\n");
+   printf("\n");
+
+// A
+// -AA-AB
+   printf("Entered 2X2 work\n");                          
+   strcpy(str, "A-AA-AB");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 work\n");
+   printf("\n");
+
+// A-BC-YZ
+   printf("Entered 2X2 imposs\n");                          
+   strcpy(str, "A-BC-YZ");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) < 0);
+   printf("Solved in %d moves\n", solve(s, true));
+   free(s);
+   printf("Passed 2X2 work\n");
+   printf("\n");
+
+
+                                                         //2 row 2 column testing
+/////////////////////////////////////////////////////////////////////////////////////// 
+                                                         //6 row 6 column testing
+
+   // printf("Entered 3X3 imposs\n"); //reached 530000 and was interrupted                          
+   // strcpy(str, "A-BCD-EFG-XYZ");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) < 0);
+   // printf("Solved in %d moves\n", solve(s, true));
+   // free(s);
+   // printf("Passed 3X3 work\n");
+   // printf("\n");
+
+   // printf("Entered 6X6 letter gatekeeping imposs\n"); //reached 530000 and was interrupted                          
+   // strcpy(str, "A-BCD-EFG-XYZ");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) < 0);
+   // printf("Solved in %d moves\n", solve(s, true));
+   // free(s);
+   // printf("Passed 6X6 letter gatekeeping imposs\n");
+   // printf("\n");
+
+   // printf("Entered 6X6 letter poss A\n");   //took 40 mins and 270000 cases when I killed it             
+   // strcpy(str, "A-ABCDEF-BCDEFA-CDEFAB-DEFABC-EFABCD-FABCDE");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves\n", solve(s, false));
+   // free(s);
+   // printf("Passed 6X6 letter poss A\n");
+   // printf("\n");
+
+   printf("Entered 6X6 letter solved\n");                          
+   strcpy(str, "F-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF"); //Solved in 8 moves and 335901 iterations
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) == 0);
+   printf("Solved in %d moves\n", solve(s, false));
+   free(s);
+   printf("Passed 6X6 letter solved\n");
+   printf("\n");
+
+// // A
+// // -FBCDEA
+// // -BACDEF
+// // -ABCEDF
+// // -ABCDEF
+// // -ACBDEF
+// // -ABCDEF
+
+//    printf("Entered 6X6 letter poss randswaps\n");                          
+//    strcpy(str, "A-FBCDEA-BACDEF-ABCEDF-ABCDEF-ACBDEF-ABCDEF");
+//    s = str2state(str);
+//    assert(s);
+//    assert(solve(s, false) > 0);
+//    printf("Solved in %d moves\n", solve(s, false));
+//    free(s);
+//    printf("Passed 6X6 letter poss randswaps\n");
+//    printf("\n");
+
+
+// A
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -FBCDEA
+
+   printf("Entered 6X6 letter poss randswaps\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves\n", solve(s, false));
+   free(s);
+   printf("Passed 6X6 letter poss randswaps\n");
+   printf("\n");
+
+// A
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+// -ABCDEF
+
+   printf("Entered 6X6 letter poss 1\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
+
+   printf("Entered 6X6 letter poss 2\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
+
+   printf("Entered 6X6 letter poss 3\n");                          
+   strcpy(str, "A-ABCDEF-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF");
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
+
+   // printf("Entered 6X6 letter poss 4\n");                          
+   // strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves and %d iterations\n", solve(s, true), s->dcnt);
+   // free(s);
+   // printf("Passed 6X6 letter poss 2nd randswaps\n");
+   // printf("\n");
+
+// // A
+// // -AA
+//    printf("Entered mycase1\n");                          
+//    strcpy(str, "A-A");
+//    s = str2state(str);
+//    assert(s);
+//    assert(solve(s, false) == 0);
+//    printf("Solved in %d moves\n", solve(s, true));
+//    free(s);
+//    printf("Passed mycase1\n");
+//    printf("\n");
+
+                                                         //6 row 6 column testing 
+//////////////////////////////////////////////////////////////////////////////////////
+                                                         //free
 }
+
