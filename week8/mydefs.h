@@ -25,7 +25,7 @@ typedef enum ckpt ckpt;
 enum myexit {graceful_exit, normal_operation};
 typedef enum myexit myexit;
 
-enum solv {solution_doesnt_exist, solution_found};
+enum solv {nosol_exist, solution_found, cont};
 typedef enum solv solv;
 
 enum cmpr {differ, same};
@@ -92,5 +92,6 @@ void print_finstructarray(state* s);
 int backtrace_solution(state* s, bool verbose);
 
 void on_error(const char* s);
+solv find_sol_cont(state* s, int col);
 
 

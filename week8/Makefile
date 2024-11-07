@@ -22,7 +22,7 @@ md_d: driver.c md.c md.h mydefs.h
 all: md md_d
 
 run:
-	./md_d
+	./md
 
 clean:
 	rm -f md md_d md.zip
