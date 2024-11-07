@@ -1,6 +1,6 @@
 #include "mydefs.h"
 
-bool file2str(const char* fname, char* str) // the length of the string is defined outside of the funciton and it is assumed that the length is enough. may need to put a failsafe here as well 
+bool file2str(const char* fname, char* str) 
 {
    if (fname == NULL || str == NULL){
       return false;
@@ -17,7 +17,7 @@ myexit readNcheck_file(const char* fname, char* str)
 {
    FILE* fp = fopen(fname, "r"); 
    if (fp != NULL){
-      char temp[BIG_NUM] = {'0'};              // optimise this when the function is working
+      char temp[BIG_NUM] = {'0'};             
       int cnt = 0;
       if (fillcheck_hawk(fp, temp, str, &cnt) == ckpt_fail){
          fclose(fp); return graceful_exit;
@@ -55,8 +55,6 @@ ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
       return ckpt_fail;
    }
    *rowlen = strlen(temp);
-   // printf("strlen(temp) = %ld\n", strlen(temp));
-   // printf("temp is %s.\n", temp);
    if (*rowlen < 1 || *rowlen > 6){
       return ckpt_fail;
    }
@@ -72,7 +70,6 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
 {
    int rowcnt = 1;
    while (fscanf(fp, "%s", temp) == 1){
-      // printf("rowcnt = %d\n", rowcnt);
       if (rowcnt == 6){
          return ckpt_fail;
       }
@@ -91,10 +88,7 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
 ckpt only_uprletter(const char* temp)
 {
    for (int letter = 0; temp[letter]; letter++){
-      // printf("temp[letter] is %c\n", temp[letter]);
       if (temp[letter] < 'A' || temp[letter] > 'Z'){
-         // printf("was here\n");
-         // printf("temp[letter] is %c\n", temp[letter]);
          return ckpt_fail;
       }
    }
@@ -103,7 +97,7 @@ ckpt only_uprletter(const char* temp)
 
 myexit line_fillup(char* temp, char* str, int* cnt)
 {
-   for (long unsigned int letter = 0; temp[letter]; letter++){
+   for (POS letter = 0; temp[letter]; letter++){
          str[(*cnt)] = temp[letter];
          (*cnt)++;
    }
@@ -115,85 +109,65 @@ myexit line_fillup(char* temp, char* str, int* cnt)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-state* str2state(const char* str) //adapt all of the same failsafes for this function from file2string, Neil will brake it 
+state* str2state(const char* str) 
 {
-   if (str == NULL){
+   if (str == NULL || gtkpng(str) == ckpt_fail){
       return NULL;
    }
-
-   if (str2state_gatekeeping(str) == ckpt_fail){
-      return NULL;
-   }
-
    state* s = calloc(1, sizeof(state));
-
    if (s == NULL){
       on_error("Cannot calloc() space");
    }
-
    s->brdlist[0].clmn = 0;
-   for (int letter = 2; str[letter] != '-'; letter++){
+   for (int letter = THRD; str[letter] != '-'; letter++){
       (s->brdlist[0].clmn)++;
    }
-
    s->brdlist[0].rows = 0;
    for (int letter = 0; str[letter]; letter++){
       if (str[letter] == '-'){
          (s->brdlist[0].rows)++;
       }
    }
-
    s->brdlist[0].hawk = str[0];
-   s->pcnt = 0;
-   s->dcnt = 1;
+   s->pcnt = 0; s->dcnt = 1;
    copy_strToState(&(s->brdlist[0]), str);
    return s;
 }
 
-ckpt str2state_gatekeeping(const char* str)
+ckpt gtkpng(const char* str)
 {
-   if (strlen(str) < 3 || strlen(str) > 44){ //44 = 7*6+2
-      // printf("fail 1\n");
+   if (strlen(str) < 3 || strlen(str) > 44){ 
       return ckpt_fail;
    }
-   char charcheck[2] = {0};
+   char charcheck[THRD] = {0};
    charcheck[0] = str[0];
    if (only_uprletter(charcheck) == ckpt_fail){
-      // printf("%c\n", str[0]);
-      // printf("fail 2\n");
       return ckpt_fail;
    }
    if (str[1] != '-'){
-      // printf("fail 3\n");
       return ckpt_fail;
    }
-   charcheck[0] = str[2];
+   charcheck[0] = str[THRD];
    if (only_uprletter(charcheck) == ckpt_fail){ 
-      // printf("fail 4\n");
       return ckpt_fail;
    }
 
-   //check that all of the columns are of equal size //check that this function actually works properly
    int col_len = 0;
-   for (int letter = 2; str[letter] != '-' && str[letter]; letter++){ 
+   for (int letter = THRD; str[letter] != '-' && str[letter]; letter++){ 
       col_len++;
    }
-   if (col_len < 1 || col_len > 6){ //check that 1 <= row <= 6
-      // printf("%d \n", col_len);
-      // printf("fail 5\n");
+   if (col_len < 1 || col_len > 6){ 
       return ckpt_fail;
    }
    int row_cnt = 1;
    int col_itr = 0;
-   for (int letter = 2; str[letter]; letter++){
+   for (int letter = THRD; str[letter]; letter++){
       if (str[letter] == '-'){
          row_cnt++;
          if (row_cnt == 7){
-            // printf("fail 9\n");
             return ckpt_fail;
          }
          if (col_itr != col_len){
-            // printf("fail 6\n");
             return ckpt_fail;
          }
          col_itr = 0;
@@ -201,20 +175,19 @@ ckpt str2state_gatekeeping(const char* str)
       else{
          charcheck[0] = str[letter];
          if (only_uprletter(charcheck) == ckpt_fail){ 
-            // printf("fail 7\n");
             return ckpt_fail;
          }
          col_itr++;
       }
    }
-   if (col_itr != col_len && strlen(str) != 3){ // for the "A-AA-A" and a single tile
-      // printf("fail 8\n");
+   if (col_itr != col_len && strlen(str) != 3){ 
       return ckpt_fail;
    }
    return ckpt_pass;
 }
 
-void on_error(const char* s) //from Programming in C database
+//from Programming in C database
+void on_error(const char* s) 
 {
    fprintf(stderr, "%s\n", s);
    exit(EXIT_FAILURE);
@@ -224,16 +197,14 @@ void copy_strToState(board* cpyboard, const char* str)
 {
    int row = 0;
    int column = 0;
-   for (int letter = 2; str[letter]; letter++){
+   for (int letter = THRD; str[letter]; letter++){
       if (str[letter] == '-'){
          column = 0;
          row++;
       }
       else{
          cpyboard->brd[row][column] = str[letter];
-         // printf("row = %d, column = %d\n", row, column);
          column++;
-         // printf("%c", cpyboard->brd[row][column]);
       }
    }
 }
@@ -258,7 +229,6 @@ int solve(state* s, bool verbose)
    if (s == NULL){
       return -1;
    }
-
    if (is_solution(s, true) == true){
       return 0;
    }
@@ -266,28 +236,21 @@ int solve(state* s, bool verbose)
       return backtrace_solution(s, verbose);
    }
    else{
-      // printf("%d\n", s->dcnt);
       return -1;
    }
-   // printf("\n");
-   // printf("Program finished\n");
-   // print_finstructarray(s);
-
    return 0;
 }
 
 int backtrace_solution(state* s, bool verbose)
 {
-   int solseq[10000] = {0};
+   int solseq[BIG_NUM_ALT] = {0}; 
    solseq[0] = s->dcnt;
    int step = 1;
    int trace = solseq[step] = s->brdlist[(s->dcnt)].parent;
-   // printf("trace = %d\n", trace);
    while (trace != 0){
       step++;
       trace = s->brdlist[trace].parent;
       solseq[step] = trace;
-      // printf("trace = %d\n", trace);
    }
    if (verbose == true){
       for (int i = step; i >= 0; i--){
@@ -311,10 +274,9 @@ void print_finstructarray(state* s)
 
 solv find_solution(state* s)
 {
-   int statcol = s->brdlist[0].clmn; // int statrow = s->brdlist[0].rows;
-   while (s->solved == false){ // while (s->solved == false){              //this is an infinite loop, be careful with that (i don't think I actually set s->solved to true anywhere)
+   int statcol = s->brdlist[0].clmn; 
+   while (s->solved == false){
       for (int col = 0; col < statcol; col++){
-         // create_dauthers(s, col);
          cpyParDtr(s);
          if (finclmn_check(s, col) == false){
             shift_tile(s, col);
@@ -325,15 +287,13 @@ solv find_solution(state* s)
                (s->dcnt)++;
             }
          }
-
-         if ((s->dcnt == s->pcnt + 1) && (col == statcol- 1)){ // there may be an issue with this condition
+         if ((s->dcnt==s->pcnt+1)&&(col==statcol-1)){ 
             return solution_doesnt_exist;
          }
       }
       (s->pcnt)++;
-      // printf("%d\n", s->dcnt);
    }
-   return solution_doesnt_exist; // subject to change
+   return solution_doesnt_exist;
 }
 
 bool finclmn_check(state* s, int col)
@@ -341,12 +301,13 @@ bool finclmn_check(state* s, int col)
    int di = s->dcnt;
    int frow = s->brdlist[0].rows;
 
-   if (frow < 2){
+   if (frow <= 1){
       return true;
    }
 
    for (int row = frow - 1; row > 0; row--){
-      if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
+      if (s->brdlist[di].brd[row][col] != 
+      s->brdlist[di].brd[(row - 1)][col]){
          return false;
       }
    }
@@ -362,13 +323,13 @@ bool is_solution(state* s, bool edge)
    else{
       di = s->dcnt;
    }
-   // int pi = s->pcnt;
    int frow = s->brdlist[0].rows;
    int fcol =  s->brdlist[0].clmn;
 
    for (int col = 0; col < fcol; col++){
       for (int row = frow - 1; row > 0; row--){
-         if (s->brdlist[di].brd[row][col] != s->brdlist[di].brd[(row - 1)][col]){
+         if (s->brdlist[di].brd[row][col] !=
+          s->brdlist[di].brd[(row - 1)][col]){
             return false;
          }
       }
@@ -389,13 +350,13 @@ cmpr find_match(state* s)
 cmpr comparator(state* s, int strc)
 {
    int di = s->dcnt;
-   // int pi = s->pcnt;
    int statrow = s->brdlist[0].rows;
    int statcol = s->brdlist[0].clmn;
 
    for (int row = 0; row < statrow; row++){
       for (int col = 0; col < statcol; col++){
-         if (s->brdlist[strc].brd[row][col] != s->brdlist[di].brd[row][col]){
+         if (s->brdlist[strc].brd[row][col] 
+            != s->brdlist[di].brd[row][col]){
             return differ;
          }
       }
@@ -403,29 +364,21 @@ cmpr comparator(state* s, int strc)
    return same;
 }
 
-// void create_dauthers(state* s, int col)
-// {
-//    cpyParDtr(s);
-//    shift_tile(s, col);
-//    // printf("create_dauthers\n");
-//    // printf("s->dcnt is %d, s->brdlist[(s->dcnt)] is below\n", s->dcnt);
-//    // structarray_printer(&(s->brdlist[(s->dcnt)]));
-
-// }
-
 void shift_tile(state* s, int col)
 {
    int di = s->dcnt;
    int pi = s->pcnt;
    int frow = s->brdlist[0].rows;
-   // int fcol =  s->brdlist[0].clmn;
-   s->brdlist[di].hawk = s->brdlist[di].brd[(frow - 1)][col];
+   s->brdlist[di].hawk = 
+   s->brdlist[di].brd[(frow - 1)][col];
 
    for (int row = frow - 1; row > 0; row--){
-      s->brdlist[di].brd[row][col] = s->brdlist[di].brd[(row - 1)][col];
+      s->brdlist[di].brd[row][col] = 
+      s->brdlist[di].brd[(row - 1)][col];
    }
 
-   s->brdlist[di].brd[0][col] = s->brdlist[pi].hawk;
+   s->brdlist[di].brd[0][col] = 
+   s->brdlist[pi].hawk;
 }
 
 void cpyParDtr(state* s)
@@ -438,7 +391,8 @@ void cpyParDtr(state* s)
 
    for (int row = 0; row < statrow; row++){
       for (int col = 0; col < statcol; col++){
-         s->brdlist[di].brd[row][col] = s->brdlist[pi].brd[row][col];
+         s->brdlist[di].brd[row][col] = 
+         s->brdlist[pi].brd[row][col];
       }
    }
 }
@@ -449,7 +403,7 @@ void cpyParDtr(state* s)
 
 void test(void)
 {
-   char str[(BRDSZ*BRDSZ+BRDSZ+2)];
+   char str[(BRDSZ*BRDSZ+BRDSZ+THRD)];
    state* s;
 
    strcpy(str, "A-ABCABC-ABCABC-ABCABC-CBACBA");

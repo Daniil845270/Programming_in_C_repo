@@ -14,6 +14,9 @@
 #define BIG_NUM 1000
 #define MAXBRDS 2000000 
 #define POS long unsigned int
+#define BIG_NUM_ALT 10000
+#define THRD 2
+
 
 enum ckpt {ckpt_fail, ckpt_pass};
 typedef enum ckpt ckpt;
@@ -75,7 +78,7 @@ bool finclmn_check(state* s, int col);
 
 void copy_strToState(board* board, const char* str);
 void structarray_printer(board* b);
-ckpt str2state_gatekeeping(const char* str);
+ckpt gtkpng(const char* str);
 
 solv find_solution(state* s);
 // void create_dauthers(state* s, int col);

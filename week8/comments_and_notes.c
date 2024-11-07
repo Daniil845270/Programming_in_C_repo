@@ -1,3 +1,27 @@
+- dont forget to check through magic numbers through ctr find
+- break down gtkpng into at least 3 functions, it is 50 lines long
+- print_finstructarray: do I use this function anywhere?
+- find_solution: too deeply nested
+- delete the comment breaking the sections
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 - added check for the pointer inputs for the str2state
 - length of str is user input -> we dont have to check for that
 - the string must at least be letter-dash-letter
