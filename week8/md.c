@@ -1116,15 +1116,15 @@ void test(void)
    // printf("Passed 6X6 letter poss A\n");
    // printf("\n");
 
-   printf("Entered 6X6 letter solved\n");                          
-   strcpy(str, "F-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF"); //Solved in 8 moves and 335901 iterations
-   s = str2state(str);
-   assert(s);
-   assert(solve(s, false) == 0);
-   printf("Solved in %d moves\n", solve(s, false));
-   free(s);
-   printf("Passed 6X6 letter solved\n");
-   printf("\n");
+   // printf("Entered 6X6 letter solved\n");                          
+   // strcpy(str, "F-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF-ABCDEF"); //Solved in 8 moves and 335901 iterations
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) == 0);
+   // printf("Solved in %d moves\n", solve(s, false));
+   // free(s);
+   // printf("Passed 6X6 letter solved\n");
+   // printf("\n");
 
 // // A
 // // -FBCDEA
@@ -1134,15 +1134,15 @@ void test(void)
 // // -ACBDEF
 // // -ABCDEF
 
-//    printf("Entered 6X6 letter poss randswaps\n");                          
-//    strcpy(str, "A-FBCDEA-BACDEF-ABCEDF-ABCDEF-ACBDEF-ABCDEF");
-//    s = str2state(str);
-//    assert(s);
-//    assert(solve(s, false) > 0);
-//    printf("Solved in %d moves\n", solve(s, false));
-//    free(s);
-//    printf("Passed 6X6 letter poss randswaps\n");
-//    printf("\n");
+   // printf("Entered 6X6 letter poss randswaps\n");                          
+   // strcpy(str, "A-FBCDEA-BACDEF-ABCEDF-ABCDEF-ACBDEF-ABCDEF");
+   // s = str2state(str);
+   // assert(s);
+   // assert(solve(s, false) > 0);
+   // printf("Solved in %d moves\n", solve(s, false));
+   // free(s);
+   // printf("Passed 6X6 letter poss randswaps\n");
+   // printf("\n");
 
 
 // A
@@ -1202,7 +1202,17 @@ void test(void)
    // printf("\n");
 
    printf("Entered 6X6 letter poss 4\n");                          
-   strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161
+   strcpy(str, "A-ABCDEF-ABCDEF-FBCDEA-ABCDEF-ABCDEF-ABCDEF"); // 8 102 161 matt
+   s = str2state(str);
+   assert(s);
+   assert(solve(s, false) > 0);
+   printf("Solved in %d moves and %d iterations\n", solve(s, false), s->dcnt);
+   free(s);
+   printf("Passed 6X6 letter poss 2nd randswaps\n");
+   printf("\n");
+
+   printf("Entered 6X6 letter poss 5\n");                          
+   strcpy(str, "A-FBCDEA-ABCDEF-FBCDEA-ABCDEF-FBCDEA-ABCDEF"); // 8 102 161 matt
    s = str2state(str);
    assert(s);
    assert(solve(s, false) > 0);
