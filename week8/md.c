@@ -55,7 +55,7 @@ ckpt fillcheck_fstbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
       return ckpt_fail;
    }
    *rowlen = strlen(temp);
-   if (*rowlen < 1 || *rowlen > 6){
+   if (*rowlen < 1 || *rowlen > BRDSZ){
       return ckpt_fail;
    }
    if (only_uprletter(temp) == ckpt_fail){
@@ -70,7 +70,7 @@ ckpt fillcheck_restbody(FILE* fp, char* temp, char* str, int* cnt, POS* rowlen)
 {
    int rowcnt = 1;
    while (fscanf(fp, "%s", temp) == 1){
-      if (rowcnt == 6){
+      if (rowcnt == BRDSZ){
          return ckpt_fail;
       }
       if (*rowlen != strlen(temp)){
@@ -136,7 +136,7 @@ state* str2state(const char* str)
 
 ckpt gtkpng(const char* str)
 {
-   if (strlen(str) < 3 || strlen(str) > 44){ 
+   if (strlen(str) < FRTH || strlen(str) > FTYFTY){ 
       return ckpt_fail;
    }
    char charcheck[THRD] = {0};
@@ -156,7 +156,7 @@ ckpt gtkpng(const char* str)
    for (int letter = THRD; str[letter] != '-' && str[letter]; letter++){ 
       col_len++;
    }
-   if (col_len < 1 || col_len > 6){ 
+   if (col_len < 1 || col_len > BRDSZ){ 
       return ckpt_fail;
    }
    int row_cnt = 1;
@@ -164,7 +164,7 @@ ckpt gtkpng(const char* str)
    for (int letter = THRD; str[letter]; letter++){
       if (str[letter] == '-'){
          row_cnt++;
-         if (row_cnt == 7){
+         if (row_cnt == (1 + BRDSZ)){
             return ckpt_fail;
          }
          if (col_itr != col_len){
@@ -180,7 +180,7 @@ ckpt gtkpng(const char* str)
          col_itr++;
       }
    }
-   if (col_itr != col_len && strlen(str) != 3){ 
+   if (col_itr != col_len && strlen(str) != FRTH){ 
       return ckpt_fail;
    }
    return ckpt_pass;

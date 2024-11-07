@@ -16,7 +16,8 @@
 #define POS long unsigned int
 #define BIG_NUM_ALT 10000
 #define THRD 2
-
+#define FRTH 3
+#define FTYFTY 44
 
 enum ckpt {ckpt_fail, ckpt_pass};
 typedef enum ckpt ckpt;
