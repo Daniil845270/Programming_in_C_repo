@@ -259,6 +259,7 @@ int backtrace_solution(state* s, bool verbose)
             printf("\n");
          }
       }
+      printf("\n");
    }
    return step;
 }
