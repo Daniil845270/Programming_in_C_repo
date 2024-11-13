@@ -5,7 +5,7 @@
 
 int main(void)
 {
-
+   
    bool b;
    char str[BIGSTR];
    boolarr* ba;
