@@ -13,17 +13,11 @@ SANITIZE := $(GENFLAGS) -g3 -fsanitize=address -fsanitize=undefined
 CC := gcc
 # CC := clang
 
-md: driver.c md.c md.h mydefs.h
-	$(CC) driver.c md.c $(OPTIM) -o md
-
-md_d: driver.c md.c md.h mydefs.h
-	$(CC) driver.c md.c $(SANITIZE) -o md_d
-
 depth_o: depth.c
-	$(CC) depth.c $(OPTIM) -o depth
+	$(CC) depth.c $(OPTIM) -o depth_o
 
 depth: depth.c
-	$(CC) depth.c $(SANITIZE) -o depth_o
+	$(CC) depth.c $(SANITIZE) -o depth
 
 all: depth depth_o
 
