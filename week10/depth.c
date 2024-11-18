@@ -16,6 +16,7 @@ typedef struct node Node;
 Node *MakeNode(char c);
 void InsertRandom(Node *t, Node *n, int* nd_max, int* nd_itr);
 char *PrintTree(Node *t);
+void free_tree(Node *t);
 
 int main(void)
 {
@@ -31,7 +32,10 @@ int main(void)
       InsertRandom(head, n, &nd_max, &nd_itr);
    }
    printf("max depth is %d\n", nd_max);
-   printf("%s\n", PrintTree(head));
+   char *p_head = PrintTree(head);
+   printf("%s\n", p_head);
+   free(p_head);
+   free_tree(head);
    return 0;
 }
 
@@ -51,10 +55,11 @@ void InsertRandom(Node *t, Node *n, int* nd_max, int* nd_itr)
    if((rand()%2) == 0){ /* Left */
       if(t->left == NULL){
          t->left = n;
+         (*nd_itr)++;
          if ((*nd_max) < (*nd_itr)){
             (*nd_max) = (*nd_itr);
          }
-         (*nd_itr) = 0;
+         (*nd_itr) = 1;
       }
       else{
          (*nd_itr)++;
@@ -64,10 +69,11 @@ void InsertRandom(Node *t, Node *n, int* nd_max, int* nd_itr)
    else{ /* Right */
       if(t->right == NULL){
          t->right = n;
+         (*nd_itr)++;
          if ((*nd_max) < (*nd_itr)){
             (*nd_max) = (*nd_itr);
          }
-         (*nd_itr) = 0;
+         (*nd_itr) = 1;
       }
       else{
          (*nd_itr)++;
@@ -87,7 +93,22 @@ char *PrintTree(Node *t)
       strcpy(str, "*");
       return str;
    }
-   sprintf(str, "%c (%s) (%s)", t->c, PrintTree(t->left), PrintTree(t->right));
+   char *p_left = PrintTree(t->left); 
+   char *p_right = PrintTree(t->right); 
+   sprintf(str, "%c (%s) (%s)", t->c, p_left, p_right);
+   free(p_left);
+   free(p_right);
    return str;
 
+}
+
+void free_tree(Node *t)
+{
+   if(t->left != NULL){
+      free_tree(t->left);
+   }
+   if(t->right != NULL){
+      free_tree(t->right);
+   }
+   free(t);
 }
