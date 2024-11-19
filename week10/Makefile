@@ -19,10 +19,13 @@ depth_o: depth.c
 depth: depth.c
 	$(CC) depth.c $(SANITIZE) -o depth
 
+two: two_trees.c
+	$(CC) two_trees.c $(SANITIZE) -o two
+
 all: depth depth_o
 
 run:
-	./depth
+	./two
 
 clean:
-	rm -f depth depth_o
+	rm -f depth depth_o two
