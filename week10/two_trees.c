@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define STRSIZE 5000
 
@@ -17,29 +18,81 @@ Node *MakeNode(char c);
 void InsertRandom(Node *t, Node *n, int* nd_max, int* nd_itr);
 char *PrintTree(Node *t);
 void free_tree(Node *t);
+bool are_same(Node *a, Node *b);
 
 int main(void)
 {
-   char c;
-   Node *head = MakeNode('A');
+   Node *head1 = MakeNode('A');
+   Node *n;
    int nd_max = 1;
    int nd_itr = 1;
-   Node *n;
 
    srand(time(NULL));
-   for(c = 'B'; c < 'G'; c++){
+   for(char c = 'B'; c < 'G'; c++){
       n = MakeNode(c);
-      InsertRandom(head, n, &nd_max, &nd_itr);
+      InsertRandom(head1, n, &nd_max, &nd_itr);
    }
 
    printf("max depth is %d\n", nd_max);
-   char *p_head = PrintTree(head);
-   printf("%s\n", p_head);
+   char *p_head1 = PrintTree(head1);
+   printf("%s\n", p_head1);
 
-   free(p_head);
-   free_tree(head);
+   /////////////////////////////////////////////////// this should be a separate function, but I can't be asked to make this pretty as long as it work
+
+   Node *head2 = MakeNode('A');
+   Node *m;
+   nd_max = 1;
+   nd_itr = 1;
+
+   // srand(time(NULL));
+   for(char c = 'B'; c < 'G'; c++){
+      m = MakeNode(c);
+      InsertRandom(head2, m, &nd_max, &nd_itr);
+   }
+
+   printf("max depth is %d\n", nd_max);
+   char *p_head2 = PrintTree(head2);
+   printf("%s\n", p_head2);
+
+
+
+   if (are_same(head1, head2) == true){
+      printf("The 2 trees are identical\n");
+      printf("\n");
+   }
+   else{
+      printf("The 2 trees have differences\n");
+      printf("\n");
+   }
    
+   free(p_head1);
+   free_tree(head1);
+   free(p_head2);
+   free_tree(head2);
+
    return 0;
+}
+
+bool are_same(Node *a, Node *b)
+{
+   if (((a == NULL) ^ (b == NULL)) == true){ // if both are NULL or pointers, XOR is false -> false == the nodes are the same
+      return false;
+   }
+
+   if (a != NULL){ //it could alt be b, it doesn't matter
+      if (a->c != b->c){
+         return false;
+      }
+
+      if (are_same(a->left, b->left) == false){
+         return false; 
+      }
+      if (are_same(a->right, b->right) == false){
+         return false; 
+      }
+   }
+
+   return true;
 }
 
 Node *MakeNode(char c)
