@@ -51,7 +51,7 @@ bool dict_addword(dict* p, const char* wd)
         return false;
     }
 
-    below should be a separate function, e.g. newEntry()
+    !!!!!!below should be a separate function, e.g. newEntry()!!!!!
     while (wd[i] != '\0')
         idx = char2idx(wd[i]) 
             char2idx is a function that takes in a single character and returns an integer (can also make it and unsigned short integer for no reason)
@@ -91,21 +91,40 @@ dict* array_node_init(dict* arrP, dict* p)
 void dict_free(dict** d)
 {
     quickcheck functions:
-        - isnull_pdict(p)
+        - isnull_pdict(d)
 
-    definitely should involve recursion
+    dict* p = *d; //dereference the pointer to the pointer to the first node of the dictionary
+    dic_free_recursion(p);
+    *d = NULL;
+}
+
+void dic_free_recursion(dict* p) // this should work
+{
+    for (int i = 0; p->dwn[i]; i++){
+        if (p->dwn[i] != NULL){
+            dic_free_recursion(p->dwn[i]);
+        }
+    }
+    free(p);
 }
 
 int dict_wordcount(const dict* p)
 {
     quickcheck functions:
         - isnull_cdict(p)
+
+    initialise the counter and set it to 1 (since p != NULL)
+    create a recursion function, that is based on dic_free_recursion that (and pass an adress of the counter)
+        finds terminal nodes (p->terminal == true)
+        when the terminal node is found, increment the ecounter
 }
 
 int dict_nodecount(const dict* p)
 {
     quickcheck functions:
         - isnull_cdict(p)
+
+    this is literally dic_free_recursion, but with a counter 
 }
 
 dict* dict_spell(const dict* p, const char* str)
@@ -113,12 +132,16 @@ dict* dict_spell(const dict* p, const char* str)
     quickcheck functions:
         - isnull_cdict(p)
         - isnull_cchar(wd)
+
+    what does this function have to do again?
 }
 
 int dict_mostcommon(const dict* p)
 {
     quickcheck functions:
         - isnull_cdict(p)
+
+    adapt the recursive algorithm
 }
 
 // CHALLENGE1
