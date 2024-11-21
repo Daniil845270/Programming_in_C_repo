@@ -30,7 +30,7 @@ void* ncalloc(int n, size_t size)
 
 bool dict_addword(dict* p, const char* wd)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_dict(p)
         - isnull_cchar(wd)
 
@@ -44,26 +44,39 @@ bool dict_addword(dict* p, const char* wd)
                     //the logic of what the function should return, if it is not pollible to add a word, then the function shoudl return false
                     //maybe we can print something
 
-            
-    what do I want this function to do in plain English
-    1) while (wd[i] != '\0')
+    int i = 0;
+    uniq = divergent_node(p, wd, i);
+    if (uniq->terminal == true){
+        (uniq->freq)++;
+        return false;
+    }
+
+    below should be a separate function, e.g. newEntry()
+    while (wd[i] != '\0')
         idx = char2idx(wd[i]) 
             char2idx is a function that takes in a single character and returns an integer (can also make it and unsigned short integer for no reason)
             I can create a hash table and populate is with indexes of the alphabet purely for the sake of understanding how that works
             But if I want to play it safe, I can just 
                 1) check if the character is an apostrophe and return (ALPHA - 1)
                 2) return an int of wd[i] - 'a'
-        if (p->dwn[idx] == '\0'){ //need to not forget to figure out how to initialise the first node in the init fucntion 
-            p = array_node_init(p->dwn[idx], p);
-            
-            p->dwn[idx] = (dict*) ncalloc(1, sizeof(dict));
-            p->dwn[idx]->up = p;
+        p = array_node_init(p->dwn[idx], p);
+        idx++
 
-        }
-
-    //if the word is already in the dictionary, then return false, but increment the frequency
-
+    so after this loop, p is the last node of the word in the dictionaly, hence need to transofrm it into one
+    p->terminal = true
+    p->freq = 1;
     return true;
+}
+
+dict* divergent_node(dict* p, const char* wd, int i)
+{
+    while (wd[i] != '\0'){
+        idx = char2idx(wd[i])
+        if (p->dwn[idx] == NULL){
+            return p;
+        }
+        idx++;
+    }
 }
 
 dict* array_node_init(dict* arrP, dict* p)
@@ -77,39 +90,41 @@ dict* array_node_init(dict* arrP, dict* p)
 
 void dict_free(dict** d)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_pdict(p)
+
+    definitely should involve recursion
 }
 
 int dict_wordcount(const dict* p)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_cdict(p)
 }
 
 int dict_nodecount(const dict* p)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_cdict(p)
 }
 
 dict* dict_spell(const dict* p, const char* str)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_cdict(p)
         - isnull_cchar(wd)
 }
 
 int dict_mostcommon(const dict* p)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_cdict(p)
 }
 
 // CHALLENGE1
 unsigned dict_cmp(dict* p1, dict* p2)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_dict(p)
         - isnull_dict(p)
 }
@@ -117,7 +132,7 @@ unsigned dict_cmp(dict* p1, dict* p2)
 // CHALLENGE2
 void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
-    foreplay functions:
+    quickcheck functions:
         - isnull_cdict(p)
         - isnull_cchar(wd)
         - isnull_cchar(wd)
