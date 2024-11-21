@@ -150,6 +150,17 @@ unsigned dict_cmp(dict* p1, dict* p2)
     quickcheck functions:
         - isnull_dict(p)
         - isnull_dict(p)
+
+    
+
+//it is probably a good idea to firslty check, if the two nodes are in the dictionary
+
+
+    general idea:
+    1) create 2 strings, one for p1 and one for p2 
+    2) copy the pointers to q1 and q2 and fill up the p1 and p2 with pointers (while up != NULL)
+    3) after the while loop, check the q1 and q2 are the same pointer
+        what should you do if they are not?
 }
 
 // CHALLENGE2
