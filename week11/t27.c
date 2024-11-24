@@ -12,7 +12,7 @@ dict* divergent_node(dict* q, const char* wd, int* itr);
 int char2idx(char c);
 bool dict_addword_gatekeep(dict* p, const char* wd);
 bool illegal_chars(const char* wd);
-bool isnull_dict(dict* p);
+bool isnull_dict(const dict* p);
 bool isnull_cchar(const char* wd);
 
 void dic_free_recursion(dict* p);
@@ -163,7 +163,7 @@ bool illegal_chars(const char* wd) // maybe could do this with switch statements
     return false;
 }
 
-bool isnull_dict(dict* p)
+bool isnull_dict(const dict* p)
 {
     if (p == NULL){
         return true;
@@ -211,6 +211,10 @@ void dic_free_recursion(dict* q)
 
 int dict_wordcount(const dict* p) //need to merge the recursive functions
 {
+    if (isnull_dict(p) == true){
+        return -1; //check what do you actually need to return
+    }
+
     int cnt = 0;
 
     wordcount_rec(p, &cnt);
@@ -236,6 +240,10 @@ void wordcount_rec(const dict* q, int* cnt)
 
 int dict_nodecount(const dict* p) //need to merge the recursive functions
 {
+    if (isnull_dict(p) == true){
+        return -1; //check what do you actually need to return
+    }
+
     int cnt = 0;
 
     nodecount_rec(p, &cnt);
@@ -259,6 +267,13 @@ void nodecount_rec(const dict* q, int* cnt)
 
 dict* dict_spell(const dict* p, const char* str)
 {
+    if (isnull_dict(p) == true){
+        return NULL; //check what do you actually need to return
+    }
+    if (isnull_cchar(str) == true){
+        return NULL; //check what do you actually need to return
+    }
+
     dict* q;
     dict* chq_nd;
     
@@ -286,6 +301,10 @@ dict* dict_spell(const dict* p, const char* str)
 
 int dict_mostcommon(const dict* p) //need to merge the recursive functions
 {
+    if (isnull_dict(p) == true){
+        return -1; //check what do you actually need to return
+    }
+
     int max = 0;
 
     mostcommon_rec(p, &max);
