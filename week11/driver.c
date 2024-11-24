@@ -15,28 +15,43 @@ int main(void)
 
    // No words are in empty tree
    assert(dict_spell(d, "the")==NULL);
+   printf("dict_spell(d, the)==NULL\n");
    // No nodes in empty tree
    assert(dict_nodecount(NULL)==0);
+   printf("dict_nodecount(NULL)==0\n");
    assert(dict_wordcount(NULL)==0);
+   printf("dict_wordcount(NULL)==0\n");
 
 /* The figure in the assignment  */
    d = dict_init();
+   printf("dict_init();");
    assert(dict_addword(d, "car"));
+   printf("dict_addword(d, car)\n");
    assert(dict_addword(d, "cart"));
+   printf("dict_addword(d, cart)\n");
    assert(dict_addword(d, "part"));
+   printf("dict_addword(d, part)\n");
    assert(dict_nodecount(d)==9);
+   printf("dict_nodecount(d)==9\n");
    assert(dict_wordcount(d)==3);
+   printf("dict_wordcount(d)==3\n");
    assert(dict_mostcommon(d)==1);
+   printf("dict_mostcommon(d)==1\n");
    dict* q1 = dict_spell(d, "car");
    dict* q2 = dict_spell(d, "part");
    assert(dict_cmp(q1, q2)==7);
+   printf("dict_cmp(q1, q2)==7\n");
    // It's unsigned
    assert(dict_cmp(q2, q1)==7);
+   printf("sssssss\n");
    // 2 steps up from 'carter' is 'cart'
    dict_autocomplete(d, "car", str);
+   printf("sssssss\n");
    // Most frequently stored word after car is car+t
    assert(strcmp(str, "t")==0);
+   printf("sssssss\n");
    dict_free(&d);
+   printf("sssssss\n");
 
 /* A slightly different example */
    d = dict_init();

@@ -3,9 +3,10 @@
 #define APOSTROPHE 39
 
 // 'Internal' function prototypes 
-dict* array_node_init(dict* arrP, dict* p);
 void on_error(const char* s);
 void* ncalloc(int n, size_t size);
+dict* array_node_init(dict* arrP, dict* p);
+
 
 void new_entry(dict* uniq, const char* wd, int* itr);
 dict* divergent_node(dict* q, const char* wd, int* itr);
@@ -33,11 +34,13 @@ dict* dict_init(void) // figure out why the short version doesn't work
 {
     // dict* p = array_node_init(p, NULL); 
     // return p;
-
+    printf("was here\n");
     dict* arrP = (dict*) ncalloc(1, sizeof(dict));
+    printf("was here\n");
     arrP->up = NULL;
     arrP->terminal = false;
     arrP->freq = -1; // arbitrary number that should be typedefed
+    printf("was end\n");
     return arrP;
 }
 
@@ -70,6 +73,22 @@ void* ncalloc(int n, size_t size)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
+
+void test(void)
+{
+    dict* d = NULL;
+    char str[50];
+    assert(isnull_dict(d) == true); // and other functions
+
+    d = dict_init();
+    printf("assigned d\n");
+    assert(dict_addword(d, "Hel'loaZ"));
+
+    free(d);
+    printf("End of my tests\n");
+    printf("\n");
+}
+
 
 bool dict_addword(dict* p, const char* wd)
 {
@@ -212,7 +231,7 @@ void dic_free_recursion(dict* q)
 int dict_wordcount(const dict* p) //need to merge the recursive functions
 {
     if (isnull_dict(p) == true){
-        return -1; //check what do you actually need to return
+        return 0; //check what do you actually need to return
     }
 
     int cnt = 0;
@@ -241,7 +260,7 @@ void wordcount_rec(const dict* q, int* cnt)
 int dict_nodecount(const dict* p) //need to merge the recursive functions
 {
     if (isnull_dict(p) == true){
-        return -1; //check what do you actually need to return
+        return 0; //check what do you actually need to return
     }
 
     int cnt = 0;
@@ -345,6 +364,3 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
 }
 
-void test(void)
-{
-}
