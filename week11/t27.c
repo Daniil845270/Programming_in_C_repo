@@ -16,18 +16,29 @@ bool isnull_dict(dict* p);
 bool isnull_cchar(const char* wd);
 
 void dic_free_recursion(dict* p);
-bool isnull_pdict(dict** p);
 
-void wordcount_rec(dict* q, &cnt);
+void wordcount_rec(const dict* q, int* cnt);
+
+void nodecount_rec(const dict* q, int* cnt);
+
+void mostcommon_rec(const dict* q, int* max);
+
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-dict* dict_init(void)
+dict* dict_init(void) // figure out why the short version doesn't work
 {
-    dict* p = array_node_init(p, NULL); // looks cursed, but it does the job
-    return p;
+    // dict* p = array_node_init(p, NULL); 
+    // return p;
+
+    dict* arrP = (dict*) ncalloc(1, sizeof(dict));
+    arrP->up = NULL;
+    arrP->terminal = false;
+    arrP->freq = -1; // arbitrary number that should be typedefed
+    return arrP;
 }
 
 dict* array_node_init(dict* arrP, dict* p)
@@ -62,13 +73,13 @@ void* ncalloc(int n, size_t size)
 
 bool dict_addword(dict* p, const char* wd)
 {
-    (dict_addword_gatekeep(p, wd) == true){
+    if (dict_addword_gatekeep(p, wd) == true){
         return false;
     }
 
     int itr = 0;
     dict* q = p;
-    uniq = divergent_node(q, wd, &itr);
+    dict* uniq = divergent_node(q, wd, &itr);
     if (uniq->terminal == true){
         (uniq->freq)++;
         return false;
@@ -80,22 +91,24 @@ bool dict_addword(dict* p, const char* wd)
 
 void new_entry(dict* uniq, const char* wd, int* itr)
 {
+    int idx;
     while (wd[*itr] != '\0'){ //so even in the situation of putting cart and then car into this dictionary, when putting car, it won't enter a loop, but would mark the node as terminal 
-        idx = char2idx(wd[i])
+        idx = char2idx(wd[*itr]);
         uniq = array_node_init(uniq->dwn[idx], uniq);
     }
-    uniq->terminal = true
+    uniq->terminal = true;
     uniq->freq = 1;
 }
 
 dict* divergent_node(dict* q, const char* wd, int* itr)
 {
+    int idx;
     while (wd[*itr] != '\0'){
-        idx = char2idx(wd[i])
+        idx = char2idx(wd[*itr]);
         if (q->dwn[idx] == NULL){
             return q;
         }
-        q = q->dwn[idx]; 
+        q = q->dwn[idx];  
         (*itr)++;
     }
     return q;
@@ -133,7 +146,7 @@ bool illegal_chars(const char* wd) // maybe could do this with switch statements
     bool illegal;
     int ltr = 0;
 
-    while (illegal = false && wd[ltr] != '\0'){
+    while ((illegal = false) && (wd[ltr] != '\0')){
         illegal = true;
         if (wd[ltr] == APOSTROPHE){
             illegal = false;
@@ -173,13 +186,13 @@ bool isnull_cchar(const char* wd)
 
 void dict_free(dict** d)
 {
-    if (isnull_pdict(d)){ //I guess this is the right behavious for this program (like freeing a NULL poitner)
-        return d;
+    if (d != NULL){
+        dict* q = *d; //dereference the pointer to the pointer to the first node of the dictionary
+        if (q != NULL){
+            dic_free_recursion(q);
+            *d = NULL;
+        }
     }
-
-    dict* q = *d; //dereference the pointer to the pointer to the first node of the dictionary
-    dic_free_recursion(q);
-    *d = NULL;
 }
 
 void dic_free_recursion(dict* q)
@@ -192,38 +205,28 @@ void dic_free_recursion(dict* q)
     free(q);
 }
 
-bool isnull_pdict(dict** p)
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+int dict_wordcount(const dict* p) //need to merge the recursive functions
 {
-    if (p == NULL){
-        return true;
-    }
-    return false;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-int dict_wordcount(const dict* p)
-{
-    dict* q = p;
     int cnt = 0;
 
-    wordcount_rec(q, &cnt);
+    wordcount_rec(p, &cnt);
 
     return cnt;
 }
 
-void wordcount_rec(dict* q, &cnt)
+void wordcount_rec(const dict* q, int* cnt)
 {
     for (int node = 0; node < ALPHA; node++){ // in this loop we recursively going down to each terminal node
         if (q->dwn[node] != NULL){
-            wordcount_rec(q->dwn[node]); 
+            wordcount_rec(q->dwn[node], cnt); 
         }
     }
     if (q->terminal){
-        *cnt += q->freq;
+        (*cnt) += q->freq;
     }
 }
 
@@ -231,21 +234,20 @@ void wordcount_rec(dict* q, &cnt)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-int dict_nodecount(const dict* p)
+int dict_nodecount(const dict* p) //need to merge the recursive functions
 {
-    dict* q = p;
     int cnt = 0;
 
-    nodecount_rec(q, &cnt);
+    nodecount_rec(p, &cnt);
 
     return cnt;
 }
 
-void nodecount_rec(dict* q, &cnt)
+void nodecount_rec(const dict* q, int* cnt)
 {
     for (int node = 0; node < ALPHA; node++){ // in this loop we recursively going down to each terminal node
         if (q->dwn[node] != NULL){
-            nodecount_rec(q->dwn[node]); 
+            nodecount_rec(q->dwn[node], cnt); 
         }
     }
     (*cnt)++;
@@ -257,12 +259,12 @@ void nodecount_rec(dict* q, &cnt)
 
 dict* dict_spell(const dict* p, const char* str)
 {
-    dict* q = p;
+    dict* q;
     dict* chq_nd;
     
     for (int ltr = 0; str[ltr]; ltr++){
 //the line below is absolutely not readable, but this line does the following: 1) look at the characters of the string you want to check in the dictionary 2) convert the character into the index, that letters are stored in the array of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
-        chq_nd = q->dwn[(char2idx(str[ltr]))];
+        chq_nd = p->dwn[(char2idx(str[ltr]))];
         if (chq_nd == NULL){
             return NULL;
         }
@@ -282,21 +284,20 @@ dict* dict_spell(const dict* p, const char* str)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-int dict_mostcommon(const dict* p)
+int dict_mostcommon(const dict* p) //need to merge the recursive functions
 {
-    dict* q = p;
     int max = 0;
 
-    mostcommon_rec(q, &max);
+    mostcommon_rec(p, &max);
 
     return max;
 }
 
-void mostcommon_rec(dict* q, &max) //this is almost copy&paste of wordcount_rec. Need to merge the functions
+void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of wordcount_rec. Need to merge the functions
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
-            mostcommon_rec(q->dwn[node]); 
+            mostcommon_rec(q->dwn[node], max); 
         }
     }
     if (q->terminal){
