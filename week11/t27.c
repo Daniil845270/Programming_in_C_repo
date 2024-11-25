@@ -32,15 +32,8 @@ void mostcommon_rec(const dict* q, int* max);
 
 dict* dict_init(void) // figure out why the short version doesn't work
 {
-    // dict* p = array_node_init(p, NULL); 
-    // return p;
-    printf("was here\n");
-    dict* arrP = (dict*) ncalloc(1, sizeof(dict));
-    printf("was here\n");
-    arrP->up = NULL;
-    arrP->terminal = false;
-    arrP->freq = -1; // arbitrary number that should be typedefed
-    printf("was end\n");
+    dict* arrP = NULL;
+    arrP = array_node_init(arrP, NULL);
     return arrP;
 }
 
@@ -73,21 +66,6 @@ void* ncalloc(int n, size_t size)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
-
-void test(void)
-{
-    dict* d = NULL;
-    char str[50];
-    assert(isnull_dict(d) == true); // and other functions
-
-    d = dict_init();
-    printf("assigned d\n");
-    assert(dict_addword(d, "Hel'loaZ"));
-
-    free(d);
-    printf("End of my tests\n");
-    printf("\n");
-}
 
 
 bool dict_addword(dict* p, const char* wd)
@@ -160,12 +138,12 @@ bool dict_addword_gatekeep(dict* p, const char* wd)
     return false;
 }
 
-bool illegal_chars(const char* wd) // maybe could do this with switch statements for fun, but later
+bool illegal_chars(const char* wd)
 {
-    bool illegal;
+    bool illegal = false;
     int ltr = 0;
 
-    while ((illegal = false) && (wd[ltr] != '\0')){
+    while (((illegal == false) && (wd[ltr] != '\0')) == true){
         illegal = true;
         if (wd[ltr] == APOSTROPHE){
             illegal = false;
@@ -349,18 +327,54 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-// CHALLENGE1
-unsigned dict_cmp(dict* p1, dict* p2)
+// // CHALLENGE1
+// unsigned dict_cmp(dict* p1, dict* p2)
+// {
+//     return 0; // placeholder so that the compiler does not complain
+// }
+
+// //////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
+
+// // CHALLENGE2
+// void dict_autocomplete(const dict* p, const char* wd, char* ret)
+// {
+// }
+
+void test(void)
 {
-    return 0; // placeholder so that the compiler does not complain
+    dict* d = NULL;
+    // char str[50];
+    // assert(isnull_dict(d) == true); // and other functions
+
+    // d = dict_init();
+    // printf("assigned d\n");
+    // assert(dict_addword(d, "Hel'loaZ"));
+
+    // free(d);
+
+    assert(illegal_chars("AbC'XyZ") == false);
+    assert(illegal_chars("+++++++++") == true);
+    assert(illegal_chars("AbC'X+yZ") == true);
+    assert(isnull_dict(NULL) == true);
+    assert(isnull_cchar(NULL) == true);
+    assert(char2idx('a') == 0);
+    assert(char2idx('A') == 0);
+    assert(char2idx('z') == 25);
+    assert(char2idx('Z') == 25);
+    assert(char2idx(39) == 26); //there is no way to test an apostrophe as a letter 
+
+    assert(dict_addword_gatekeep(d, "AbC'XyZ") == true);
+    d = dict_init();
+    assert(dict_addword_gatekeep(d, NULL) == true);
+    assert(dict_addword_gatekeep(d, "") == true);
+    assert(dict_addword_gatekeep(d, "+++++++++") == true);
+    assert(dict_addword_gatekeep(d, "AbC'X+yZ") == true);
+
+    dict_free(&d);
+
+
+    printf("End of my tests\n");
+    printf("\n");
 }
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-// CHALLENGE2
-void dict_autocomplete(const dict* p, const char* wd, char* ret)
-{
-}
-

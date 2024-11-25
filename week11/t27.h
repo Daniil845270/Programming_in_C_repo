@@ -63,16 +63,16 @@ void dict_free(dict** p);
 */
 int dict_mostcommon(const dict* p);
 
-/* CHALLENGE1
-   For two nodes, count the nodes that separate them */
-unsigned dict_cmp(dict* p1, dict* p2);
+// /* CHALLENGE1
+//    For two nodes, count the nodes that separate them */
+// unsigned dict_cmp(dict* p1, dict* p2);
 
-/* CHALLENGE2
-   For dictionary 'p', and word 'wd', find the
-   path down to the most frequently used word
-   below this node, adding these letters to 'ret'.
-   (In the event of ties, use the word that comes
-   first alphabetically). */
-void dict_autocomplete(const dict* p, const char* wd, char* ret);
+// /* CHALLENGE2
+//    For dictionary 'p', and word 'wd', find the
+//    path down to the most frequently used word
+//    below this node, adding these letters to 'ret'.
+//    (In the event of ties, use the word that comes
+//    first alphabetically). */
+// void dict_autocomplete(const dict* p, const char* wd, char* ret);
 
 void test(void);
