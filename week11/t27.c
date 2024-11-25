@@ -24,6 +24,8 @@ void nodecount_rec(const dict* q, int* cnt);
 
 void mostcommon_rec(const dict* q, int* max);
 
+bool is_uniq_unique(dict* uniq, char c);
+
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -70,31 +72,29 @@ void* ncalloc(int n, size_t size)
 
 bool dict_addword(dict* p, const char* wd)
 {
-    if (dict_addword_gatekeep(p, wd) == true){
+    if (dict_addword_gatekeep(p, wd) == true){ //does what it supposed to do
         return false;
     }
 
     int itr = 0;
     dict* q = p;
-    dict* uniq = divergent_node(q, wd, &itr);
-    if (uniq->terminal == true){
-        (uniq->freq)++;
+    dict* uniq = divergent_node(q, wd, &itr); // does what it supposed to do 
+
+    if (is_uniq_unique(uniq, wd[itr]) == false){ //does what it supposed to do
         return false;
     }
 
-    new_entry(uniq, wd, &itr);
-    return true; // placeholder so that the compiler does not complain
+    new_entry(uniq, wd, &itr);//does what it supposed to do
+    return true;
 }
 
-void new_entry(dict* uniq, const char* wd, int* itr)
+bool is_uniq_unique(dict* uniq, char c)
 {
-    int idx;
-    while (wd[*itr] != '\0'){ //so even in the situation of putting cart and then car into this dictionary, when putting car, it won't enter a loop, but would mark the node as terminal 
-        idx = char2idx(wd[*itr]);
-        uniq = array_node_init(uniq->dwn[idx], uniq);
+    if ((uniq->terminal == true) && (c == 0)){
+        (uniq->freq)++;
+        return false;
     }
-    uniq->terminal = true;
-    uniq->freq = 1;
+    return true;
 }
 
 dict* divergent_node(dict* q, const char* wd, int* itr)
@@ -103,12 +103,29 @@ dict* divergent_node(dict* q, const char* wd, int* itr)
     while (wd[*itr] != '\0'){
         idx = char2idx(wd[*itr]);
         if (q->dwn[idx] == NULL){
+            // printf("Exit\n");
             return q;
         }
+        // printf("Shound be herre\n");
         q = q->dwn[idx];  
         (*itr)++;
     }
     return q;
+}
+
+void new_entry(dict* uniq, const char* wd, int* itr)
+{
+    int idx;
+    while (wd[*itr] != '\0'){ //so even in the situation of putting cart and then car into this dictionary, when putting car, it won't enter a loop, but would mark the node as terminal 
+        // printf("Infinite loop\n");
+        idx = char2idx(wd[*itr]);
+        dict* uniq_temp = array_node_init(uniq->dwn[idx], uniq);
+        uniq->dwn[idx] = uniq_temp;
+        uniq = uniq_temp;
+        (*itr)++;
+    }
+    uniq->terminal = true;
+    uniq->freq = 1;
 }
 
 int char2idx(char c) // need to check what are the actual values this function returns
@@ -345,14 +362,7 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 void test(void)
 {
     dict* d = NULL;
-    // char str[50];
-    // assert(isnull_dict(d) == true); // and other functions
-
-    // d = dict_init();
-    // printf("assigned d\n");
-    // assert(dict_addword(d, "Hel'loaZ"));
-
-    // free(d);
+    dict* e = NULL;
 
     assert(illegal_chars("AbC'XyZ") == false);
     assert(illegal_chars("+++++++++") == true);
@@ -372,8 +382,30 @@ void test(void)
     assert(dict_addword_gatekeep(d, "+++++++++") == true);
     assert(dict_addword_gatekeep(d, "AbC'X+yZ") == true);
 
+    int num = 0;
+    assert(divergent_node(d, "AbC'XyZ", &num) == d);
+    assert(is_uniq_unique(d, 'A') == true);
+
+    new_entry(d, "AbC'XyZ", &num);
+    num = 0;
+    dict* diverge = divergent_node(d, "AbC'XyZ", &num);
+    // printf("%d\n", diverge->terminal);
+    assert(is_uniq_unique(diverge, '\0') == false);
+    // printf("%d\n", diverge->freq);
+    // printf("%d\n", )
+    // assert(is_uniq_unique() == false);
     dict_free(&d);
 
+    e = dict_init();
+    assert(dict_addword(e, "AbC'XyZ") == true);
+    assert(dict_addword(e, "eeeAbC'XyZ") == true);
+    assert(dict_addword(e, "eeeAbC'XyZee") == true);
+    assert(dict_addword(e, "AbC'XyZ") == false);
+    assert(dict_addword(e, "eeeAbC'XyZee") == false);
+    assert(dict_addword(e, "AbC'Xy") == true);
+    assert(dict_addword(e, "AbC'Xy") == false);
+
+    dict_free(&e);
 
     printf("End of my tests\n");
     printf("\n");
