@@ -1,6 +1,8 @@
 #include "t27.h"
 #include <ctype.h>
 #define APOSTROPHE 39
+#define BIGNUM 1000
+#define SWAP(A,B) {char temp; temp=A;A=B;B=temp;}
 
 // 'Internal' function prototypes 
 void on_error(const char* s);
@@ -26,13 +28,17 @@ void mostcommon_rec(const dict* q, int* max);
 
 bool is_uniq_unique(dict* uniq, char c);
 
+void qstr_fillup(dict* q, char* str);
+char idx2char(int idx);
+void strrev(char* s, int start, int end);
+
 
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-dict* dict_init(void) // figure out why the short version doesn't work
+dict* dict_init(void)
 {
     dict* arrP = NULL;
     arrP = array_node_init(arrP, NULL);
@@ -120,6 +126,7 @@ void new_entry(dict* uniq, const char* wd, int* itr)
         // printf("Infinite loop\n");
         idx = char2idx(wd[*itr]);
         dict* uniq_temp = array_node_init(uniq->dwn[idx], uniq);
+        uniq_temp->up = uniq;
         uniq->dwn[idx] = uniq_temp;
         uniq = uniq_temp;
         (*itr)++;
@@ -128,7 +135,7 @@ void new_entry(dict* uniq, const char* wd, int* itr)
     uniq->freq = 1;
 }
 
-int char2idx(char c) // need to check what are the actual values this function returns
+int char2idx(char c) 
 {
     if (c == APOSTROPHE){
         return (ALPHA - 1);
@@ -236,7 +243,7 @@ int dict_wordcount(const dict* p) //need to merge the recursive functions
     return cnt;
 }
 
-void wordcount_rec(const dict* q, int* cnt)
+void wordcount_rec(const dict* q, int* cnt) //the summ of the frequency count of all terminals
 {
     for (int node = 0; node < ALPHA; node++){ // in this loop we recursively going down to each terminal node
         if (q->dwn[node] != NULL){
@@ -281,18 +288,19 @@ void nodecount_rec(const dict* q, int* cnt)
 
 dict* dict_spell(const dict* p, const char* str)
 {
-    if (isnull_dict(p) == true){
-        return NULL; //check what do you actually need to return
-    }
-    if (isnull_cchar(str) == true){
-        return NULL; //check what do you actually need to return
+    if (isnull_dict(p) || isnull_cchar(str)){
+        return NULL;
     }
 
     dict* q;
     dict* chq_nd;
     
     for (int ltr = 0; str[ltr]; ltr++){
-//the line below is absolutely not readable, but this line does the following: 1) look at the characters of the string you want to check in the dictionary 2) convert the character into the index, that letters are stored in the array of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
+//the line below is absolutely not readable, but this line does the following: 
+//1) look at the characters of the string you want to check in the dictionary 
+//2) convert the character into the index, that letters are stored in the array 
+    //of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 
+//3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
         chq_nd = p->dwn[(char2idx(str[ltr]))];
         if (chq_nd == NULL){
             return NULL;
@@ -344,20 +352,84 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-// // CHALLENGE1
-// unsigned dict_cmp(dict* p1, dict* p2)
-// {
-//     return 0; // placeholder so that the compiler does not complain
-// }
+// CHALLENGE1
+unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this funtion
+{
+    if (isnull_dict(p1) || isnull_dict(p2)){
+        return -1;
+    }
 
-// //////////////////////////////////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////////////////////////////////
+    dict* q1 = p1; dict* q2 = p2;
+    char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0};
 
-// // CHALLENGE2
-// void dict_autocomplete(const dict* p, const char* wd, char* ret)
-// {
-// }
+    qstr_fillup(q1, q1str); qstr_fillup(q2, q2str);
+    
+    strrev(q1str, 0, strlen(q1str)-1);
+    strrev(q2str, 0, strlen(q2str)-1);
+    if (q1str[0] != q2str[0]){
+        return -1;
+    }
+
+    int dvrt = 0;
+    while (q1str[dvrt] == q2str[dvrt]){
+        dvrt++;
+    }
+
+    int ans = strlen(q1str)-1 + strlen(q2str)-1 - (dvrt * 2) + 1; //figure out if this formula is correct
+
+    return ans;
+}
+
+//fucntion take from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c
+void strrev(char* s, int start, int end)
+{
+   if(start >= end){
+      return;
+   }
+   SWAP(s[start], s[end]);
+   strrev(s, start+1, end-1);
+}
+
+void qstr_fillup(dict* q, char* str)
+{
+    int loc = 0;
+    int idx = 0;
+    dict* ltr = NULL;
+    while (q->up != NULL){
+        idx = 0;
+        ltr = q;
+        q = q->up;
+
+        while (q->dwn[idx] != ltr){
+            idx++;
+        }
+        idx++;
+
+        str[loc] = idx2char(idx);
+        loc++;
+    }
+}
+
+char idx2char(int idx)
+{
+    if (idx == (ALPHA - 1)){
+        return APOSTROPHE;
+    }
+    else{
+        return (idx + 'a');
+    }
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+// CHALLENGE2
+void dict_autocomplete(const dict* p, const char* wd, char* ret)
+{
+}
 
 void test(void)
 {
