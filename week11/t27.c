@@ -28,7 +28,7 @@ void mostcommon_rec(const dict* q, int* max);
 
 bool is_uniq_unique(dict* uniq, char c);
 
-void qstr_fillup(dict* q, char* str);
+dict* qstr_fillup(dict* q, char* str);
 char idx2char(int idx);
 void strrev(char* s, int start, int end);
 
@@ -367,13 +367,16 @@ unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this
 {
     if (isnull_dict(p1) || isnull_dict(p2)){
         printf("caught a null pointer\n");
-        return -1;
+        return 0;
     }
 
     dict* q1 = p1; dict* q2 = p2;
     char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0};
 
-    qstr_fillup(q1, q1str); qstr_fillup(q2, q2str);
+    if (qstr_fillup(q1, q1str) != qstr_fillup(q2, q2str)){
+        printf("nodes belong to different dictionaries\n");
+        return 0;
+    }
     
     strrev(q1str, 0, strlen(q1str)-1);
     strrev(q2str, 0, strlen(q2str)-1);
@@ -411,7 +414,7 @@ void strrev(char* s, int start, int end)
    strrev(s, start+1, end-1);
 }
 
-void qstr_fillup(dict* q, char* str)
+dict* qstr_fillup(dict* q, char* str)
 {
     int loc = 0;
     int idx = 0;
@@ -428,6 +431,7 @@ void qstr_fillup(dict* q, char* str)
         str[loc] = idx2char(idx);
         loc++;
     }
+    return q;
 }
 
 char idx2char(int idx)
@@ -455,6 +459,7 @@ void test(void)
 {
     dict* d = NULL;
     dict* e = NULL;
+    dict* f = NULL;
     dict* nill = NULL;
 
     assert(illegal_chars("AbC'XyZ") == false);
@@ -490,6 +495,7 @@ void test(void)
     dict_free(&d);
 
     e = dict_init();
+    f = dict_init();
     assert(dict_addword(e, "AbC'XyZ") == true);
     assert(dict_addword(e, "eeeAbC'XyZ") == true);
     assert(dict_addword(e, "eeeAbC'XyZee") == true);
@@ -501,14 +507,19 @@ void test(void)
     //edge cases for dict_spell
     assert(dict_spell(nill, "ABCDE") == NULL);
     assert(dict_spell(e, NULL) == NULL);
+
     //string you try to spell is not in the dict
     assert(dict_spell(e, "NOTinDICTIONARY") == NULL);
+
     //string you try to spell is not in the dict alt 1
     assert(dict_spell(e, "eeeA") == NULL);
+
     //string you try to spell is not in the dict alt 2
     assert(dict_spell(e, "eeeAbC'XyZeee") == NULL);
+
     //the final letter is not terminal node 
     assert(dict_spell(e, "eeeAbC'XyZe") == NULL);
+
     //what if we try to speel an empty string
     assert(dict_spell(e, "") == NULL);
     
@@ -535,6 +546,13 @@ void test(void)
     q1 = dict_spell(e, "eeeAbC'XyZee");
     assert(dict_cmp(q1, q2)==0);
     assert(dict_cmp(q2, q1)==0);
+
+    //what if the 2 words are from 2 different dictionaries
+    assert(dict_addword(e, "dictEword") == true);
+    assert(dict_addword(f, "dictFword") == true);
+    q1 = dict_spell(e, "dictEword");
+    q2 = dict_spell(f, "dictFword");
+    assert(dict_cmp(q1, q2) == 0);
 
 
     assert(dict_addword(e, "AbC'XyZ") == false);
