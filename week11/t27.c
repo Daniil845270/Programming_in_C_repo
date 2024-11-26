@@ -286,13 +286,16 @@ void nodecount_rec(const dict* q, int* cnt)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-dict* dict_spell(const dict* p, const char* str)
+dict* dict_spell(const dict* p, const char* str) // test this function, there is a problem here
 {
     if (isnull_dict(p) || isnull_cchar(str)){
         return NULL;
     }
 
-    dict* q;
+    dict* q = p->dwn[(char2idx(str[0]))];
+    q = q->up;
+
+
     dict* chq_nd;
     
     for (int ltr = 0; str[ltr]; ltr++){
@@ -301,7 +304,7 @@ dict* dict_spell(const dict* p, const char* str)
 //2) convert the character into the index, that letters are stored in the array 
     //of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 
 //3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
-        chq_nd = p->dwn[(char2idx(str[ltr]))];
+        chq_nd = q->dwn[(char2idx(str[ltr]))];
         if (chq_nd == NULL){
             return NULL;
         }
@@ -316,7 +319,9 @@ dict* dict_spell(const dict* p, const char* str)
         return NULL;
     }
 }
-
+        // if (dict_spell_rec(p->dwn[idx], str, itr) == NULL){
+        //     reutrn NULL;
+        // }
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +360,12 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 // CHALLENGE1
 unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this funtion
 {
+
+    assert((p1 != NULL) == true);
+    assert((p2 != NULL) == true);
+
     if (isnull_dict(p1) || isnull_dict(p2)){
+        printf("caught a null pointer\n");
         return -1;
     }
 
@@ -366,16 +376,23 @@ unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this
     
     strrev(q1str, 0, strlen(q1str)-1);
     strrev(q2str, 0, strlen(q2str)-1);
-    if (q1str[0] != q2str[0]){
-        return -1;
-    }
+
+    printf("q1str: %s \n", q1str);
+    printf("q2str: %s \n", q2str);
+    printf("Was here\n");
+    // if (q1str[0] != q2str[0]){ // return to this part later, when the main program works
+    //     return -1;
+    // }
+
+    // printf("Was here\n");
+    
 
     int dvrt = 0;
     while (q1str[dvrt] == q2str[dvrt]){
         dvrt++;
     }
 
-    int ans = strlen(q1str)-1 + strlen(q2str)-1 - (dvrt * 2) + 1; //figure out if this formula is correct
+    int ans = strlen(q1str) + strlen(q2str) - (dvrt * 2); //figure out if this formula is correct
 
     return ans;
 }
@@ -403,7 +420,6 @@ void qstr_fillup(dict* q, char* str)
         while (q->dwn[idx] != ltr){
             idx++;
         }
-        idx++;
 
         str[loc] = idx2char(idx);
         loc++;
