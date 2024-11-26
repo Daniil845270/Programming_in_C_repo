@@ -233,7 +233,7 @@ void dic_free_recursion(dict* q)
 int dict_wordcount(const dict* p) //need to merge the recursive functions
 {
     if (isnull_dict(p) == true){
-        return 0; //check what do you actually need to return
+        return 0; //it's a sensible return since a null pointer contains no words
     }
 
     int cnt = 0;
@@ -245,7 +245,7 @@ int dict_wordcount(const dict* p) //need to merge the recursive functions
 
 void wordcount_rec(const dict* q, int* cnt) //the summ of the frequency count of all terminals
 {
-    for (int node = 0; node < ALPHA; node++){ // in this loop we recursively going down to each terminal node
+    for (int node = 0; node < ALPHA; node++){ 
         if (q->dwn[node] != NULL){
             wordcount_rec(q->dwn[node], cnt); 
         }
@@ -262,7 +262,7 @@ void wordcount_rec(const dict* q, int* cnt) //the summ of the frequency count of
 int dict_nodecount(const dict* p) //need to merge the recursive functions
 {
     if (isnull_dict(p) == true){
-        return 0; //check what do you actually need to return
+        return 0; //it's a sensible return since a null pointer contains no nodes
     }
 
     int cnt = 0;
@@ -334,7 +334,7 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
 int dict_mostcommon(const dict* p) //need to merge the recursive functions
 {
     if (isnull_dict(p) == true){
-        return -1; //check what do you actually need to return
+        return 0; //it's a sensible return since a null pointer contains no words
     }
 
     int max = 0;
@@ -363,7 +363,7 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 //////////////////////////////////////////////////////////////////////////////////
 
 // CHALLENGE1
-unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this funtion
+unsigned dict_cmp(dict* p1, dict* p2)
 {
     if (isnull_dict(p1) || isnull_dict(p2)){
         printf("caught a null pointer\n");
@@ -450,17 +450,18 @@ char idx2char(int idx)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-// CHALLENGE2
-void dict_autocomplete(const dict* p, const char* wd, char* ret)
-{
-}
+// // CHALLENGE2
+// void dict_autocomplete(const dict* p, const char* wd, char* ret)
+// {
+// }
 
 void test(void)
 {
     dict* d = NULL;
     dict* e = NULL;
     dict* f = NULL;
-    dict* nill = NULL;
+    dict* g = NULL;
+    dict* nullP = NULL;
 
     assert(illegal_chars("AbC'XyZ") == false);
     assert(illegal_chars("+++++++++") == true);
@@ -494,6 +495,18 @@ void test(void)
     // assert(is_uniq_unique() == false);
     dict_free(&d);
 
+    //what if we feed some garbage data into these functions?
+    g = dict_init();
+    assert(dict_wordcount(g) == 0);
+    assert(dict_mostcommon(g) == 0);
+    assert(dict_nodecount(g) == 1); 
+
+    assert(dict_wordcount(nullP) == 0);
+    assert(dict_mostcommon(nullP) == 0);
+    assert(dict_nodecount(nullP) == 0); 
+    //to be fair, i can't really think of ways to break these functions. They either work, or they don't
+
+
     e = dict_init();
     f = dict_init();
     assert(dict_addword(e, "AbC'XyZ") == true);
@@ -505,7 +518,7 @@ void test(void)
     assert(dict_addword(e, "CARes") == true);
 
     //edge cases for dict_spell
-    assert(dict_spell(nill, "ABCDE") == NULL);
+    assert(dict_spell(nullP, "ABCDE") == NULL);
     assert(dict_spell(e, NULL) == NULL);
 
     //string you try to spell is not in the dict
@@ -559,10 +572,26 @@ void test(void)
     assert(dict_addword(e, "eeeAbC'XyZee") == false);
     assert(dict_addword(e, "AbC'Xy") == true);
     assert(dict_addword(e, "AbC'Xy") == false);
+    assert(dict_addword(e, "eeeAbC'XyZee") == false);
 
-  
+    //at this stage, dict e contains 9 unique words, that only have been added once 
+        // "AbC'XyZ" 2
+        // "eeeAbC'XyZ"
+        // "eeeAbC'XyZee" 3 - the most frequently added word
+        // "ABCDE"
+        // "ACDE"
+        // "CAt"
+        // "CARes"
+        // "dictEword"
+        // "AbC'Xy" 2
+
+    assert(dict_wordcount(e) == (9 + 1 + 2 + 1)); //to account for all of the words that have been added mulpiple times
+    assert(dict_mostcommon(e) == 3);
+    assert(dict_nodecount(e) == (1+12+12+6+9)); // to account all of the branches
 
     dict_free(&e);
+    dict_free(&f);
+    dict_free(&g);
 
     printf("End of my tests\n");
     printf("\n");
