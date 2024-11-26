@@ -361,8 +361,8 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this funtion
 {
 
-    assert((p1 != NULL) == true);
-    assert((p2 != NULL) == true);
+    // assert((p1 != NULL) == true);
+    // assert((p2 != NULL) == true);
 
     if (isnull_dict(p1) || isnull_dict(p2)){
         printf("caught a null pointer\n");
@@ -392,7 +392,10 @@ unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this
         dvrt++;
     }
 
-    int ans = strlen(q1str) + strlen(q2str) - (dvrt * 2); //figure out if this formula is correct
+    printf("dvrt: %d\n", dvrt);
+    printf("ans = %ld\n", (strlen(q1str) + strlen(q2str) - ((dvrt) * 2)));
+
+    int ans = strlen(q1str) + strlen(q2str) - ((dvrt) * 2); //figure out if this formula is correct
 
     return ans;
 }
@@ -488,10 +491,27 @@ void test(void)
     assert(dict_addword(e, "AbC'XyZ") == true);
     assert(dict_addword(e, "eeeAbC'XyZ") == true);
     assert(dict_addword(e, "eeeAbC'XyZee") == true);
+    assert(dict_addword(e, "ABCDE") == true);
+    assert(dict_addword(e, "ACDE") == true);
+    assert(dict_addword(e, "CAt") == true);
+    assert(dict_addword(e, "CARes") == true);
+
+    dict* q1 = dict_spell(e, "CAt");
+    dict* q2 = dict_spell(e, "CARes");
+    assert(dict_cmp(q1, q2)==4);
+    // It's unsigned
+    assert(dict_cmp(q2, q1)==4);
+
     assert(dict_addword(e, "AbC'XyZ") == false);
     assert(dict_addword(e, "eeeAbC'XyZee") == false);
     assert(dict_addword(e, "AbC'Xy") == true);
     assert(dict_addword(e, "AbC'Xy") == false);
+
+    //so now my dictionayry contains words AbC'XyZ, eeeAbC'XyZ, eeeAbC'XyZee, AbC'Xy
+
+    // ABCDE
+    // ACDE
+    
 
     dict_free(&e);
 
