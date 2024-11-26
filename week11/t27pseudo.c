@@ -176,4 +176,14 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
         - isnull_cdict(p)
         - isnull_cchar(wd)
         - isnull_cchar(wd)
+
+    general idea:
+
+    1) adapt the recursive action function, so that it would do the following:
+        - look at each node and store the nodes with the highest frequency in an array 
+            (may have to use a variable sized array, look up how its done)
+            if a node with higher frequency is found, delete the array, create a new one and add the adress of the node
+    2) from the list of terminal nodes, qstr_fillup() the strings 
+    3) select the string which comes alphabetically first
+
 }

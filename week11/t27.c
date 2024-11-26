@@ -11,8 +11,6 @@ typedef enum action action;
 void on_error(const char* s);
 void* ncalloc(int n, size_t size);
 dict* array_node_init(dict* arrP, dict* p);
-
-
 void new_entry(dict* uniq, const char* wd, int* itr);
 dict* divergent_node(dict* q, const char* wd, int* itr);
 int char2idx(char c);
@@ -20,12 +18,9 @@ bool dict_addword_gatekeep(dict* p, const char* wd);
 bool illegal_chars(const char* wd);
 bool isnull_dict(const dict* p);
 bool isnull_cchar(const char* wd);
-
 void rec_act(const dict* q, int* num, action todo);
 void dic_free_recursion(dict* p);
-
 bool is_uniq_unique(dict* uniq, char c);
-
 dict* qstr_fillup(dict* q, char* str);
 char idx2char(int idx);
 void strrev(char* s, int start, int end);
@@ -206,16 +201,15 @@ bool isnull_cchar(const char* wd)
 void dict_free(dict** d)
 {
     if (d != NULL){
-        dict* q = *d; //dereference the pointer to the pointer to the first node of the dictionary
+        dict* q = *d; 
         if (q != NULL){
             dic_free_recursion(q);
-            // rec_act(q, NULL, myfree);
             *d = NULL;
         }
     }
 }
 
-void dic_free_recursion(dict* q) //yes, this is literally carbon copy of the beginning of rec_act(), but I didn't figure out how to get around freeing a constand dict*
+void dic_free_recursion(dict* q) //yes, this is literally carbon copy of the beginning of rec_act(), but I didn't figure out how to get around freeing a constant dict*
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
@@ -261,7 +255,6 @@ int dict_wordcount(const dict* p) //need to merge the recursive functions
 
     int cnt = 0;
 
-    // wordcount_rec(p, &cnt);
     rec_act(p, &cnt, wordCount);
 
     return cnt;
@@ -279,7 +272,6 @@ int dict_nodecount(const dict* p) //need to merge the recursive functions
 
     int cnt = 0;
 
-    // nodecount_rec(p, &cnt);
     rec_act(p, &cnt, nodeCount);
 
     return cnt;
@@ -439,10 +431,15 @@ char idx2char(int idx)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-// // CHALLENGE2
-// void dict_autocomplete(const dict* p, const char* wd, char* ret)
-// {
-// }
+// CHALLENGE2
+void dict_autocomplete(const dict* p, const char* wd, char* ret)
+{
+    if ((!isnull_dict(p)) && 
+        (!isnull_cchar(wd)) && 
+        (!isnull_cchar(ret))){
+
+    }
+}
 
 void test(void)
 {
