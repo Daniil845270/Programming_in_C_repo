@@ -3,6 +3,15 @@
 #define APOSTROPHE 39
 #define BIGNUM 1000
 #define SWAP(A,B) {char temp; temp=A;A=B;B=temp;}
+#define SCLF 2
+
+struct pDict{
+    dict** arr;
+    int freq;
+    int cpt;
+    int ld;
+};
+typedef struct pDict pDict;
 
 enum action {wordCount, nodeCount, mostCommon};
 typedef enum action action;
@@ -352,7 +361,7 @@ unsigned dict_cmp(dict* p1, dict* p2)
     }
 
     dict* q1 = p1; dict* q2 = p2;
-    char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0};
+    char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0}; // maybe redo it as a variable sized array? However, in theory, if it is used as an actual dictionary, then this list should't be filled more than the longest english word which is 45 letters
 
     if (qstr_fillup(q1, q1str) != qstr_fillup(q2, q2str)){
         printf("nodes belong to different dictionaries\n");
@@ -385,7 +394,7 @@ unsigned dict_cmp(dict* p1, dict* p2)
     return ans;
 }
 
-//fucntion take from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c
+//fucntion taken from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c
 void strrev(char* s, int start, int end)
 {
    if(start >= end){
@@ -431,15 +440,92 @@ char idx2char(int idx)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+/* CHALLENGE2
+   For dictionary 'p', and word 'wd', find the
+   path down to the most frequently used word
+   below this node, adding these letters to 'ret'.
+   In the event of ties, use the word that comes
+   first alphabetically. Treat the apostrophe as
+   alphabetically greater than all letters */
+
 // CHALLENGE2
 void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
-    if ((!isnull_dict(p)) && 
-        (!isnull_cchar(wd)) && 
-        (!isnull_cchar(ret))){
+    if ((!isnull_dict(p)) && (!isnull_cchar(wd)) && (!isnull_cchar(ret))){
+        pDict* ps = pDict_init();
 
+        ps_fillup(ps, p, wd);
+
+        free(ps);
     }
 }
+
+pDict* pDict_init(void)
+{
+    pDict* arrP = (pDict*) ncalloc(1, sizeof(pDict));
+    arrP->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
+    arrP->freq = 0;
+    arrP->cpt = BIGNUM;
+    arrP->ld = 0;
+    return arrP;
+}
+
+
+//function contain elements adapted from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
+void ps_fillup(pDict* ps, const dict* q, const char* wd) // check in the morning that this is actually correct, and passes some basic tests
+{
+    for (int node = 0; node < ALPHA; node++){
+        if (q->dwn[node] != NULL){
+            rec_act(q->dwn[node], num, todo);
+        }
+    }
+    if (q->terminal){
+        if (ps->freq == q->freq){
+            if (ps->ld >= ps->cpt){
+                ps->arr = (dict**) nrecalloc(ps->arr,
+                    ps->cpt, ps->cpt * SCLF);
+                ps->cpt *= SCLF;
+            }
+            ps->arr[(ps->ld)] = q;
+            (ps->ld)++;
+        }
+        if (ps->freq < q->freq){
+            free(ps->arr);
+            ps->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
+            ps->arr[0] = q;
+            arrP->freq = q->freq;
+            arrP->cpt = BIGNUM;
+            arrP->ld = 1;
+        }
+    }
+}
+
+
+// function taken from https://github.com/csnwc/ADTs/blob/main/General/general.c 
+void* nrecalloc(void* p, int oldbytes, int newbytes)
+{
+   void* n = calloc(newbytes, 1);
+   if(n==NULL){
+      on_error("Cannot calloc() space");
+   }
+   memcpy(n, p, oldbytes);
+   free(p);
+   return n;
+}
+
+// void* nremalloc(void* p, int bytes)
+// {
+//    void* n = realloc(p, bytes);
+//    if(n==NULL){
+//       on_error("Cannot malloc() space");
+//    }
+//    return n;
+// }
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 void test(void)
 {

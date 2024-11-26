@@ -186,4 +186,6 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
     2) from the list of terminal nodes, qstr_fillup() the strings 
     3) select the string which comes alphabetically first
 
+    
+
 }
