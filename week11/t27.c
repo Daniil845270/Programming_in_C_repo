@@ -292,18 +292,25 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
         return NULL;
     }
 
+    if (strlen(str) == 0){
+        return NULL;
+    }
+
     dict* q = p->dwn[(char2idx(str[0]))];
+    if (!q){
+        return NULL;
+    }
     q = q->up;
 
 
     dict* chq_nd;
     
     for (int ltr = 0; str[ltr]; ltr++){
-//the line below is absolutely not readable, but this line does the following: 
-//1) look at the characters of the string you want to check in the dictionary 
-//2) convert the character into the index, that letters are stored in the array 
-    //of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 
-//3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
+    //the line below is absolutely not readable, but this line does the following: 
+    //1) look at the characters of the string you want to check in the dictionary 
+    //2) convert the character into the index, that letters are stored in the array 
+        //of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 
+    //3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
         chq_nd = q->dwn[(char2idx(str[ltr]))];
         if (chq_nd == NULL){
             return NULL;
@@ -311,7 +318,7 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
         q = chq_nd;
     }
 
-//so once we reached the node, that contains the last node, we check if it is terminal
+    //so once we reached the node, that contains the last node, we check if it is terminal
     if (q->terminal){
         return q;
     }
@@ -319,9 +326,7 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
         return NULL;
     }
 }
-        // if (dict_spell_rec(p->dwn[idx], str, itr) == NULL){
-        //     reutrn NULL;
-        // }
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -360,10 +365,6 @@ void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of word
 // CHALLENGE1
 unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this funtion
 {
-
-    // assert((p1 != NULL) == true);
-    // assert((p2 != NULL) == true);
-
     if (isnull_dict(p1) || isnull_dict(p2)){
         printf("caught a null pointer\n");
         return -1;
@@ -387,15 +388,15 @@ unsigned dict_cmp(dict* p1, dict* p2) // need to think of the edge cases of this
     // printf("Was here\n");
     
 
-    int dvrt = 0;
-    while (q1str[dvrt] == q2str[dvrt]){
+    size_t dvrt = 0;
+    while ((q1str[dvrt] == q2str[dvrt]) && (dvrt < strlen(q1str))){
         dvrt++;
     }
 
-    printf("dvrt: %d\n", dvrt);
-    printf("ans = %ld\n", (strlen(q1str) + strlen(q2str) - ((dvrt) * 2)));
+    // printf("dvrt: %d\n", dvrt);
+    // printf("ans = %ld\n", (strlen(q1str) + strlen(q2str) - ((dvrt) * 2)));
 
-    int ans = strlen(q1str) + strlen(q2str) - ((dvrt) * 2); //figure out if this formula is correct
+    int ans = strlen(q1str) + strlen(q2str) - ((dvrt) * 2);
 
     return ans;
 }
@@ -454,6 +455,7 @@ void test(void)
 {
     dict* d = NULL;
     dict* e = NULL;
+    dict* nill = NULL;
 
     assert(illegal_chars("AbC'XyZ") == false);
     assert(illegal_chars("+++++++++") == true);
@@ -496,22 +498,51 @@ void test(void)
     assert(dict_addword(e, "CAt") == true);
     assert(dict_addword(e, "CARes") == true);
 
+    //edge cases for dict_spell
+    assert(dict_spell(nill, "ABCDE") == NULL);
+    assert(dict_spell(e, NULL) == NULL);
+    //string you try to spell is not in the dict
+    assert(dict_spell(e, "NOTinDICTIONARY") == NULL);
+    //string you try to spell is not in the dict alt 1
+    assert(dict_spell(e, "eeeA") == NULL);
+    //string you try to spell is not in the dict alt 2
+    assert(dict_spell(e, "eeeAbC'XyZeee") == NULL);
+    //the final letter is not terminal node 
+    assert(dict_spell(e, "eeeAbC'XyZe") == NULL);
+    //what if we try to speel an empty string
+    assert(dict_spell(e, "") == NULL);
+    
+
+    // dict_cmp
     dict* q1 = dict_spell(e, "CAt");
     dict* q2 = dict_spell(e, "CARes");
     assert(dict_cmp(q1, q2)==4);
-    // It's unsigned
     assert(dict_cmp(q2, q1)==4);
+
+    //same as previous tbh
+    q1 = dict_spell(e, "ABCDE");
+    q2 = dict_spell(e, "ACDE");
+    assert(dict_cmp(q1, q2)==7);
+    assert(dict_cmp(q2, q1)==7);
+
+    //comparing 2 words withough branching
+    q1 = dict_spell(e, "eeeAbC'XyZ");
+    q2 = dict_spell(e, "eeeAbC'XyZee");
+    assert(dict_cmp(q1, q2)==2);
+    assert(dict_cmp(q2, q1)==2);
+
+    //comparing the same word
+    q1 = dict_spell(e, "eeeAbC'XyZee");
+    assert(dict_cmp(q1, q2)==0);
+    assert(dict_cmp(q2, q1)==0);
+
 
     assert(dict_addword(e, "AbC'XyZ") == false);
     assert(dict_addword(e, "eeeAbC'XyZee") == false);
     assert(dict_addword(e, "AbC'Xy") == true);
     assert(dict_addword(e, "AbC'Xy") == false);
 
-    //so now my dictionayry contains words AbC'XyZ, eeeAbC'XyZ, eeeAbC'XyZee, AbC'Xy
-
-    // ABCDE
-    // ACDE
-    
+  
 
     dict_free(&e);
 
