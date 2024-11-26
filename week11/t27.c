@@ -4,6 +4,9 @@
 #define BIGNUM 1000
 #define SWAP(A,B) {char temp; temp=A;A=B;B=temp;}
 
+enum action {wordCount, nodeCount, mostCommon};
+typedef enum action action;
+
 // 'Internal' function prototypes 
 void on_error(const char* s);
 void* ncalloc(int n, size_t size);
@@ -18,13 +21,8 @@ bool illegal_chars(const char* wd);
 bool isnull_dict(const dict* p);
 bool isnull_cchar(const char* wd);
 
+void rec_act(const dict* q, int* num, action todo);
 void dic_free_recursion(dict* p);
-
-void wordcount_rec(const dict* q, int* cnt);
-
-void nodecount_rec(const dict* q, int* cnt);
-
-void mostcommon_rec(const dict* q, int* max);
 
 bool is_uniq_unique(dict* uniq, char c);
 
@@ -211,12 +209,13 @@ void dict_free(dict** d)
         dict* q = *d; //dereference the pointer to the pointer to the first node of the dictionary
         if (q != NULL){
             dic_free_recursion(q);
+            // rec_act(q, NULL, myfree);
             *d = NULL;
         }
     }
 }
 
-void dic_free_recursion(dict* q)
+void dic_free_recursion(dict* q) //yes, this is literally carbon copy of the beginning of rec_act(), but I didn't figure out how to get around freeing a constand dict*
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
@@ -224,6 +223,30 @@ void dic_free_recursion(dict* q)
         }
     }
     free(q);
+}
+
+void rec_act(const dict* q, int* num, action todo)
+{
+    for (int node = 0; node < ALPHA; node++){
+        if (q->dwn[node] != NULL){
+            rec_act(q->dwn[node], num, todo);
+        }
+    }
+    switch (todo){
+        case wordCount: 
+            if (q->terminal){
+                (*num) += q->freq;
+            } break;
+        case nodeCount:
+            (*num)++; break;
+        case mostCommon:
+            if (q->terminal){
+                if (q->freq > (*num)){
+                    *num = q->freq;
+                }
+            } break;
+        default: printf("This is unusual\n"); break;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -238,21 +261,10 @@ int dict_wordcount(const dict* p) //need to merge the recursive functions
 
     int cnt = 0;
 
-    wordcount_rec(p, &cnt);
+    // wordcount_rec(p, &cnt);
+    rec_act(p, &cnt, wordCount);
 
     return cnt;
-}
-
-void wordcount_rec(const dict* q, int* cnt) //the summ of the frequency count of all terminals
-{
-    for (int node = 0; node < ALPHA; node++){ 
-        if (q->dwn[node] != NULL){
-            wordcount_rec(q->dwn[node], cnt); 
-        }
-    }
-    if (q->terminal){
-        (*cnt) += q->freq;
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -267,19 +279,10 @@ int dict_nodecount(const dict* p) //need to merge the recursive functions
 
     int cnt = 0;
 
-    nodecount_rec(p, &cnt);
+    // nodecount_rec(p, &cnt);
+    rec_act(p, &cnt, nodeCount);
 
     return cnt;
-}
-
-void nodecount_rec(const dict* q, int* cnt)
-{
-    for (int node = 0; node < ALPHA; node++){ // in this loop we recursively going down to each terminal node
-        if (q->dwn[node] != NULL){
-            nodecount_rec(q->dwn[node], cnt); 
-        }
-    }
-    (*cnt)++;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -339,23 +342,9 @@ int dict_mostcommon(const dict* p) //need to merge the recursive functions
 
     int max = 0;
 
-    mostcommon_rec(p, &max);
+    rec_act(p, &max, mostCommon);
 
     return max;
-}
-
-void mostcommon_rec(const dict* q, int* max) //this is almost copy&paste of wordcount_rec. Need to merge the functions
-{
-    for (int node = 0; node < ALPHA; node++){
-        if (q->dwn[node] != NULL){
-            mostcommon_rec(q->dwn[node], max); 
-        }
-    }
-    if (q->terminal){
-        if (q->freq > (*max)){
-            *max = q->freq;
-        }
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
