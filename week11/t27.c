@@ -6,11 +6,11 @@
 #define SCLF 2
 
 struct pDict{
-    dict** arr;
+    const dict** arr;
     int freq;
     int cpt;
     int ld;
-    dict* root;
+    const dict* root;
 };
 typedef struct pDict pDict;
 
@@ -34,6 +34,13 @@ bool is_uniq_unique(dict* uniq, char c);
 dict* qstr_fillup(dict* q, char* str);
 char idx2char(int idx);
 void strrev(char* s, int start, int end);
+
+pDict* pDict_init(const dict* p);
+void ps_fillup(pDict* ps, const dict* q, const char* wd);
+void ret_fillup(pDict* ps, char* ret);
+void ret_choice(char* ret, char* temp, int itr);
+void temp_fillup(const dict* q, pDict* ps, char* temp);
+void* nrecalloc(void* p, int oldbytes, int newbytes);
 
 
 
@@ -371,9 +378,9 @@ unsigned dict_cmp(dict* p1, dict* p2)
     strrev(q1str, 0, strlen(q1str)-1);
     strrev(q2str, 0, strlen(q2str)-1);
 
-    printf("q1str: %s \n", q1str);
-    printf("q2str: %s \n", q2str);
-    printf("Was here\n");
+    // printf("q1str: %s \n", q1str);
+    // printf("q2str: %s \n", q2str);
+    // printf("Was here\n");
     // if (q1str[0] != q2str[0]){ // return to this part later, when the main program works
     //     return -1;
     // }
@@ -466,7 +473,7 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
 pDict* pDict_init(const dict* p)
 {
     pDict* arrP = (pDict*) ncalloc(1, sizeof(pDict));
-    arrP->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
+    arrP->arr = (const dict**) ncalloc(BIGNUM, sizeof(const dict*));
     arrP->freq = 0;
     arrP->cpt = BIGNUM;
     arrP->ld = 0;
@@ -484,22 +491,21 @@ void ps_fillup(pDict* ps, const dict* q, const char* wd)
         }
     }
     if (q->terminal){ // i am adding constants here
-        if (ps->freq == q->freq){
+        if (ps->freq == q->freq){ // make this a separate function for readability
             if (ps->ld >= ps->cpt){
-                ps->arr = (dict**) nrecalloc(ps->arr,
-                    ps->cpt, ps->cpt * SCLF);
+                ps->arr = (const dict**) nrecalloc(ps->arr, ps->cpt, ps->cpt * SCLF);
                 ps->cpt *= SCLF;
             }
             ps->arr[(ps->ld)] = q; //q here is a constant. I will do fillup later -> need to deconstify this assignment
             (ps->ld)++;
         }
-        else if (ps->freq < q->freq){
+        else if (ps->freq < q->freq){ // make this a separate function for readability
             free(ps->arr);
-            ps->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
+            ps->arr = (const dict**) ncalloc(BIGNUM, sizeof(dict*));
             ps->arr[0] = q; // and this one as well
-            arrP->freq = q->freq;
-            arrP->cpt = BIGNUM;
-            arrP->ld = 1; //i.e. the zeroeth element of the array is occupied
+            ps->freq = q->freq;
+            ps->cpt = BIGNUM;
+            ps->ld = 1; //i.e. the zeroeth element of the array is occupied
         }
     }
 }
@@ -507,11 +513,11 @@ void ps_fillup(pDict* ps, const dict* q, const char* wd)
 void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillup; merge when the funcion is working
 {
     for (int i = 0; ps->arr[i]; i++){
-        temp = ncalloc(BIGNUM, sizeof(char));
+        char* temp = ncalloc(BIGNUM, sizeof(char));
 
-        temp_fillup(q, ps, temp);
+        temp_fillup(ps->arr[i], ps, temp); // a bit fucked up, but should work
 
-        ret_choice(ret, temp, i)
+        ret_choice(ret, temp, i);
 
         free(temp);
     } 
@@ -521,25 +527,25 @@ void ret_choice(char* ret, char* temp, int itr)
 {
     switch (itr){ //did I actually make it better this way?
         case 0:
-            strcpy(str, temp); break;
+            strcpy(ret, temp); break;
         default:
-            for (int c, ret[c], c++){
-                if ((temp[c] < ret[c]) && (temp[c]) != APOSTROPHE){
-                    strcpy(str, temp);
+            for (int c = 0; ret[c] && temp[c]; c++){
+                if ((temp[c] < ret[c]) && ((temp[c]) != APOSTROPHE)){
+                    strcpy(ret, temp);
                 }
-            }break;
+            } 
     }
 }
 
-void temp_fillup(const dict* q, pDict* ps, char* temp) // I am not assinging q new values, hence it should be fine
+void temp_fillup(const dict* q, pDict* ps, char* temp) 
 {
     int loc = 0;
     int idx = 0;
-    dict* ltr = NULL;
+    const dict* ltr = NULL;
     while (q->up != ps->root->up){
         idx = 0;
         ltr = q;
-        q = q->up;
+        q = q->up; 
 
         while (q->dwn[idx] != ltr){
             idx++;
@@ -562,16 +568,6 @@ void* nrecalloc(void* p, int oldbytes, int newbytes)
    free(p);
    return n;
 }
-
-// void* nremalloc(void* p, int bytes)
-// {
-//    void* n = realloc(p, bytes);
-//    if(n==NULL){
-//       on_error("Cannot malloc() space");
-//    }
-//    return n;
-// }
-
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
