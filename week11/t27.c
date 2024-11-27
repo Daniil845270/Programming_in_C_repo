@@ -371,7 +371,7 @@ unsigned dict_cmp(dict* p1, dict* p2)
     char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0}; // maybe redo it as a variable sized array? However, in theory, if it is used as an actual dictionary, then this list should't be filled more than the longest english word which is 45 letters
 
     if (qstr_fillup(q1, q1str) != qstr_fillup(q2, q2str)){
-        printf("nodes belong to different dictionaries\n");
+        // printf("nodes belong to different dictionaries\n");
         return 0;
     }
     
@@ -517,6 +517,8 @@ void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillu
 
         temp_fillup(ps->arr[i], ps, temp); // a bit fucked up, but should work
 
+        strrev(temp, 0, strlen(temp)-1);
+
         ret_choice(ret, temp, i);
 
         free(temp);
@@ -525,19 +527,23 @@ void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillu
 
 void ret_choice(char* ret, char* temp, int itr)
 {
+    printf("ret is %s\n", ret);
+    printf("temp is %s\n", temp);
+    printf("\n");
     switch (itr){ //did I actually make it better this way?
         case 0:
             strcpy(ret, temp); break;
         default:
             for (int c = 0; ret[c] && temp[c]; c++){
-                if ((temp[c] < ret[c]) && ((temp[c]) != APOSTROPHE)){
+                if ((temp[c] < ret[c]) && 
+                ((temp[c]) != APOSTROPHE)){
                     strcpy(ret, temp);
                 }
             } 
     }
 }
 
-void temp_fillup(const dict* q, pDict* ps, char* temp) 
+void temp_fillup(const dict* q, pDict* ps, char* temp)
 {
     int loc = 0;
     int idx = 0;
