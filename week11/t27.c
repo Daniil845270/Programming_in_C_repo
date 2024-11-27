@@ -33,7 +33,7 @@ void dic_free_recursion(dict* p);
 bool is_uniq_unique(dict* uniq, char c);
 dict* qstr_fillup(dict* q, char* str);
 char idx2char(int idx);
-void strrev(char* s, int start, int end);
+void strrev(char* s, int n);
 
 pDict* pDict_init(const dict* p);
 void ps_fillup(pDict* ps, const dict* q);
@@ -139,7 +139,8 @@ void new_entry(dict* uniq, const char* wd, int* itr)
     while (wd[*itr] != '\0'){ //so even in the situation of putting cart and then car into this dictionary, when putting car, it won't enter a loop, but would mark the node as terminal 
         // printf("Infinite loop\n");
         idx = char2idx(wd[*itr]);
-        dict* uniq_temp = array_node_init(uniq->dwn[idx], uniq);
+        dict* uniq_temp = array_node_init(
+            uniq->dwn[idx], uniq);
         uniq_temp->up = uniq;
         uniq->dwn[idx] = uniq_temp;
         uniq = uniq_temp;
@@ -181,7 +182,7 @@ bool illegal_chars(const char* wd)
     bool illegal = false;
     int ltr = 0;
 
-    while (((illegal == false) && (wd[ltr] != '\0')) == true){
+    while (((illegal == false) && (wd[ltr] != '\0'))){
         illegal = true;
         if (wd[ltr] == APOSTROPHE){
             illegal = false;
@@ -370,50 +371,27 @@ unsigned dict_cmp(dict* p1, dict* p2)
         printf("caught a null pointer\n");
         return 0;
     }
-
     dict* q1 = p1; dict* q2 = p2;
     char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0}; // maybe redo it as a variable sized array? However, in theory, if it is used as an actual dictionary, then this list should't be filled more than the longest english word which is 45 letters
-
     if (qstr_fillup(q1, q1str) != qstr_fillup(q2, q2str)){
-        // printf("nodes belong to different dictionaries\n");
         return 0;
     }
-    
-    strrev(q1str, 0, strlen(q1str)-1);
-    strrev(q2str, 0, strlen(q2str)-1);
-
-    // printf("q1str: %s \n", q1str);
-    // printf("q2str: %s \n", q2str);
-    // printf("Was here\n");
-    // if (q1str[0] != q2str[0]){ // return to this part later, when the main program works
-    //     return -1;
-    // }
-
-    // printf("Was here\n");
-    
-
+    strrev(q1str, strlen(q1str));
+    strrev(q2str, strlen(q2str));
     size_t dvrt = 0;
-    while ((q1str[dvrt] == q2str[dvrt]) && (dvrt < strlen(q1str))){
+    while ((q1str[dvrt] == q2str[dvrt]) 
+              && (dvrt < strlen(q1str))){
         dvrt++;
     }
-
-    // printf("dvrt: %d\n", dvrt);
-    // printf("ans = %ld\n", (strlen(q1str) + strlen(q2str) - ((dvrt) * 2)));
-
-    int ans = strlen(q1str) + strlen(q2str) - ((dvrt) * 2);
-
-    return ans;
+    return (strlen(q1str) + strlen(q2str) - (dvrt + dvrt));
 }
 
-//fucntion taken from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c  
-//it might be a good idea to rewite this function entirely
-void strrev(char* s, int start, int end)
+//fucntion taken from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_it.c 
+void strrev(char* s, int n)
 {
-    if(start >= end){
-        return;
+    for (int i = 0, j = n - 1; i < j; i++, j--){
+        SWAP(s[i], s[j]);
     }
-    SWAP(s[start], s[end]);
-    strrev(s, start+1, end-1);
 }
 
 dict* qstr_fillup(dict* q, char* str)
@@ -469,20 +447,15 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
             q = p->dwn[(char2idx(wd[0]))];
             q = q->up;
         }
-
         dict* root = find_root(q, wd);
-
         pDict* ps = pDict_init(root);
-
         ps_fillup(ps, root);
-
         ret_fillup(ps, ret);
-
         free(ps->arr);
         free(ps);
     }
     else{
-        on_error("dict_autocomplete: feeding null pointers");
+        on_error("feeding null pointers into dict_autocomplete");
     }
 }
 
@@ -554,22 +527,15 @@ void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillu
 {
     for (int i = 0; ps->arr[i]; i++){
         char* temp = ncalloc(BIGNUM, sizeof(char));
-
         temp_fillup(ps->arr[i], ps, temp); // a bit fucked up, but should work
-
-        strrev(temp, 0, strlen(temp)-1);
-
+        strrev(temp, strlen(temp));
         ret_choice(ret, temp, i);
-
         free(temp);
     } 
 }
 
 void ret_choice(char* ret, char* temp, int itr)
 {
-    // printf("ret is %s\n", ret);
-    // printf("temp is %s\n", temp);
-    // printf("\n");
     switch (itr){
         case 0:
             strcpy(ret, temp); break;
@@ -592,11 +558,9 @@ void temp_fillup(const dict* q, pDict* ps, char* temp)
         idx = 0;
         ltr = q;
         q = q->up; 
-
         while (q->dwn[idx] != ltr){ //why is there a seg fault in this line at all?
             idx++;
         }
-
         temp[loc] = idx2char(idx);
         loc++;
     }
@@ -626,6 +590,7 @@ void test(void)
     dict* f = NULL;
     dict* g = NULL;
     dict* nullP = NULL;
+    char str[50];
 
     assert(illegal_chars("AbC'XyZ") == false);
     assert(illegal_chars("+++++++++") == true);
@@ -752,6 +717,20 @@ void test(void)
     assert(dict_wordcount(e) == (9 + 1 + 2 + 1)); //to account for all of the words that have been added mulpiple times
     assert(dict_mostcommon(e) == 3);
     assert(dict_nodecount(e) == (1+12+12+6+9)); // to account all of the branches
+
+    // dict_autocomplete(nullP, "Hello", str);
+    // what should I actually test in autocomplete?
+    // 1) how does it handle utocompleting nodes that are terminal?
+    //     What should the program event return?
+    // 2) How does the program handle garbage input?
+    //     NULL pointers are fine, I quess
+    //     Empty strings?
+    //     wd is not in the dictionary
+    // 3) does reallocing actually work properly?
+
+
+    //     As a rule of thub: wherever there is a possibility to dereference a null pointer, give error. Else, just don't do anything, I guess
+
 
     dict_free(&e);
     dict_free(&f);
