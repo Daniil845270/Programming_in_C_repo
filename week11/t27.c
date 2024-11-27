@@ -36,11 +36,12 @@ char idx2char(int idx);
 void strrev(char* s, int start, int end);
 
 pDict* pDict_init(const dict* p);
-void ps_fillup(pDict* ps, const dict* q, const char* wd);
+void ps_fillup(pDict* ps, const dict* q);
 void ret_fillup(pDict* ps, char* ret);
 void ret_choice(char* ret, char* temp, int itr);
 void temp_fillup(const dict* q, pDict* ps, char* temp);
 void* nrecalloc(void* p, int oldbytes, int newbytes);
+dict* find_root (dict* p, const char* wd);
 
 
 
@@ -459,35 +460,58 @@ char idx2char(int idx)
 void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
     if ((!isnull_dict(p)) && (!isnull_cchar(wd)) && (!isnull_cchar(ret))){
-        pDict* ps = pDict_init(p);
+        dict* q = NULL;
+        if (strlen(wd) > 0){
+            q = p->dwn[(char2idx(wd[0]))];
+            q = q->up;
+        }
 
-        ps_fillup(ps, p, wd);
+        dict* root = find_root(q, wd);
+
+        pDict* ps = pDict_init(root);
+
+        ps_fillup(ps, root);
 
         ret_fillup(ps, ret);
 
         free(ps->arr);
         free(ps);
     }
+    else{
+        on_error("dict_autocomplete: feeding null pointers");
+    }
 }
 
-pDict* pDict_init(const dict* p)
+dict* find_root (dict* p, const char* wd)
+{
+    for (int ltr = 0; wd[ltr]; ltr++){
+        printf("%c\n", wd[ltr]);
+        if (p == NULL){
+            on_error("Dereferencing NULL pointer in find_root");
+        }
+        p = p->dwn[(char2idx(wd[ltr]))];
+    }
+    return p;
+}
+
+pDict* pDict_init(const dict* root)
 {
     pDict* arrP = (pDict*) ncalloc(1, sizeof(pDict));
     arrP->arr = (const dict**) ncalloc(BIGNUM, sizeof(const dict*));
     arrP->freq = 0;
     arrP->cpt = BIGNUM;
     arrP->ld = 0;
-    arrP->root = p;
+    arrP->root = root;
     return arrP;
 }
 
 
 //function contain elements adapted from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
-void ps_fillup(pDict* ps, const dict* q, const char* wd)
+void ps_fillup(pDict* ps, const dict* q) //it shouldn't be q, it should be ps->root
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
-            ps_fillup(ps, q->dwn[node], wd);
+            ps_fillup(ps, q->dwn[node]);
         }
     }
     if (q->terminal){ // i am adding constants here
@@ -548,12 +572,12 @@ void temp_fillup(const dict* q, pDict* ps, char* temp)
     int loc = 0;
     int idx = 0;
     const dict* ltr = NULL;
-    while (q->up != ps->root->up){
+    while (q != ps->root){
         idx = 0;
         ltr = q;
         q = q->up; 
 
-        while (q->dwn[idx] != ltr){
+        while (q->dwn[idx] != ltr){ //why is there a seg fault in this line at all?
             idx++;
         }
 
