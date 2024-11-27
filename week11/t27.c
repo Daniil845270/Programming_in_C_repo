@@ -4,6 +4,7 @@
 #define BIGNUM 1000
 #define SWAP(A,B) {char temp; temp=A;A=B;B=temp;}
 #define SCLF 2
+#define INVAL (-1)
 
 struct pDict{
     const dict** arr;
@@ -18,39 +19,34 @@ enum action {wordCount, nodeCount, mostCommon};
 typedef enum action action;
 
 // 'Internal' function prototypes 
+dict* array_node_init(dict* arrP, dict* p);
 void on_error(const char* s);
 void* ncalloc(int n, size_t size);
-dict* array_node_init(dict* arrP, dict* p);
-void new_entry(dict* uniq, const char* wd, int* itr);
+bool is_uniq_unique(dict* uniq, char c);
 dict* divergent_node(dict* q, const char* wd, int* itr);
+void new_entry(dict* uniq, const char* wd, int* itr);
 int char2idx(char c);
 bool dict_addword_gatekeep(dict* p, const char* wd);
 bool illegal_chars(const char* wd);
 bool isnull_dict(const dict* p);
 bool isnull_cchar(const char* wd);
+void dic_free_recursion(dict* q);
 void rec_act(const dict* q, int* num, action todo);
-void dic_free_recursion(dict* p);
-bool is_uniq_unique(dict* uniq, char c);
+void strrev(char* s, int n);
 dict* qstr_fillup(dict* q, char* str);
 char idx2char(int idx);
-void strrev(char* s, int n);
-
-pDict* pDict_init(const dict* p);
+dict* find_root (dict* p, const char* wd);
+pDict* pDict_init(const dict* root);
 void ps_fillup(pDict* ps, const dict* q);
+void ps_fillup_add(pDict* ps, const dict* q);
+void restart_fillup(pDict* ps, const dict* q);
 void ret_fillup(pDict* ps, char* ret);
 void ret_choice(char* ret, char* temp, int itr);
 void temp_fillup(const dict* q, pDict* ps, char* temp);
 void* nrecalloc(void* p, int oldbytes, int newbytes);
-dict* find_root (dict* p, const char* wd);
-
-void ps_fillup_add(pDict* ps, const dict* q);
-void restart_fillup(pDict* ps, const dict* q);
 
 
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 
 dict* dict_init(void)
 {
@@ -64,7 +60,7 @@ dict* array_node_init(dict* arrP, dict* p)
     arrP = (dict*) ncalloc(1, sizeof(dict));
     arrP->up = p;
     arrP->terminal = false;
-    arrP->freq = -1; // arbitrary number that should be typedefed
+    arrP->freq = INVAL;
     return arrP;
 }
 
@@ -85,26 +81,24 @@ void* ncalloc(int n, size_t size)
    return v;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+
 
 
 bool dict_addword(dict* p, const char* wd)
 {
-    if (dict_addword_gatekeep(p, wd) == true){ //does what it supposed to do
+    if (dict_addword_gatekeep(p, wd) == true){ 
         return false;
     }
 
     int itr = 0;
     dict* q = p;
-    dict* uniq = divergent_node(q, wd, &itr); // does what it supposed to do 
+    dict* uniq = divergent_node(q, wd, &itr); 
 
-    if (is_uniq_unique(uniq, wd[itr]) == false){ //does what it supposed to do
+    if (is_uniq_unique(uniq, wd[itr]) == false){
         return false;
     }
 
-    new_entry(uniq, wd, &itr);//does what it supposed to do
+    new_entry(uniq, wd, &itr);
     return true;
 }
 
@@ -123,10 +117,8 @@ dict* divergent_node(dict* q, const char* wd, int* itr)
     while (wd[*itr] != '\0'){
         idx = char2idx(wd[*itr]);
         if (q->dwn[idx] == NULL){
-            // printf("Exit\n");
             return q;
         }
-        // printf("Shound be herre\n");
         q = q->dwn[idx];  
         (*itr)++;
     }
@@ -136,8 +128,7 @@ dict* divergent_node(dict* q, const char* wd, int* itr)
 void new_entry(dict* uniq, const char* wd, int* itr)
 {
     int idx;
-    while (wd[*itr] != '\0'){ //so even in the situation of putting cart and then car into this dictionary, when putting car, it won't enter a loop, but would mark the node as terminal 
-        // printf("Infinite loop\n");
+    while (wd[*itr] != '\0'){ 
         idx = char2idx(wd[*itr]);
         dict* uniq_temp = array_node_init(
             uniq->dwn[idx], uniq);
@@ -163,10 +154,10 @@ int char2idx(char c)
 bool dict_addword_gatekeep(dict* p, const char* wd)
 {
     if (isnull_dict(p) == true){
-        return true; // which is stated in .h file
+        return true;
     }
     if (isnull_cchar(wd) == true){
-        return true; // which is stated in .h file
+        return true;
     }
     if (strlen(wd) == 0){
         return true;
@@ -216,10 +207,6 @@ bool isnull_cchar(const char* wd)
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
 void dict_free(dict** d)
 {
     if (d != NULL){
@@ -231,7 +218,9 @@ void dict_free(dict** d)
     }
 }
 
-void dic_free_recursion(dict* q) //yes, this is literally carbon copy of the beginning of rec_act(), but I didn't figure out how to get around freeing a constant dict*
+//this function is not part of rec_act() because the compiler
+//had issues with freeing a const dict*
+void dic_free_recursion(dict* q)
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
@@ -261,55 +250,35 @@ void rec_act(const dict* q, int* num, action todo)
                     *num = q->freq;
                 }
             } break;
-        default: printf("This is unusual\n"); break;
+        default: printf("This is unusual\n");
     }
 }
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 
 int dict_wordcount(const dict* p) 
 {
     if (isnull_dict(p) == true){
-        return 0; //it's a sensible return since a null pointer contains no words
+        return 0;
     }
-
     int cnt = 0;
-
     rec_act(p, &cnt, wordCount);
-
     return cnt;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 
-int dict_nodecount(const dict* p) //need to merge the recursive functions
+int dict_nodecount(const dict* p)
 {
     if (isnull_dict(p) == true){
-        return 0; //it's a sensible return since a null pointer contains no nodes
+        return 0; 
     }
-
     int cnt = 0;
-
     rec_act(p, &cnt, nodeCount);
-
     return cnt;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-dict* dict_spell(const dict* p, const char* str) // test this function, there is a problem here
+dict* dict_spell(const dict* p, const char* str)
 {
-    if (isnull_dict(p) || isnull_cchar(str)){
-        return NULL;
-    }
-
-    if (strlen(str) == 0){
+    if (isnull_dict(p) || isnull_cchar(str)
+                       || (strlen(str) == 0)){
         return NULL;
     }
 
@@ -319,14 +288,8 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
     }
     q = q->up;
 
-
     dict* chq_nd;
     for (int ltr = 0; str[ltr]; ltr++){
-    //the line below is absolutely not readable, but this line does the following: 
-    //1) look at the characters of the string you want to check in the dictionary 
-    //2) convert the character into the index, that letters are stored in the array 
-        //of characters in a node (i.e. a is 0 -> z is 25 and ' is 26) 
-    //3) assinging the value of the pointer from the array of poiters into the original poitner (i.e. pointer chase)
         chq_nd = q->dwn[(char2idx(str[ltr]))];
         if (chq_nd == NULL){
             return NULL;
@@ -334,7 +297,6 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
         q = chq_nd;
     }
 
-    //so once we reached the node, that contains the last node, we check if it is terminal
     if (q->terminal){
         return q;
     }
@@ -343,14 +305,10 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-int dict_mostcommon(const dict* p) //need to merge the recursive functions
+int dict_mostcommon(const dict* p) 
 {
     if (isnull_dict(p) == true){
-        return 0; //it's a sensible return since a null pointer contains no words
+        return 0; 
     }
 
     int max = 0;
@@ -360,11 +318,7 @@ int dict_mostcommon(const dict* p) //need to merge the recursive functions
     return max;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 
-// CHALLENGE1
 unsigned dict_cmp(dict* p1, dict* p2)
 {
     if (isnull_dict(p1) || isnull_dict(p2)){
@@ -372,7 +326,7 @@ unsigned dict_cmp(dict* p1, dict* p2)
         return 0;
     }
     dict* q1 = p1; dict* q2 = p2;
-    char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0}; // maybe redo it as a variable sized array? However, in theory, if it is used as an actual dictionary, then this list should't be filled more than the longest english word which is 45 letters
+    char q1str[BIGNUM] = {0}; char q2str[BIGNUM] = {0};
     if (qstr_fillup(q1, q1str) != qstr_fillup(q2, q2str)){
         return 0;
     }
@@ -403,11 +357,9 @@ dict* qstr_fillup(dict* q, char* str)
         idx = 0;
         ltr = q;
         q = q->up;
-
         while (q->dwn[idx] != ltr){
             idx++;
         }
-
         str[loc] = idx2char(idx);
         loc++;
     }
@@ -424,38 +376,32 @@ char idx2char(int idx)
     }
 }
 
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-/* CHALLENGE2
-   For dictionary 'p', and word 'wd', find the
-   path down to the most frequently used word
-   below this node, adding these letters to 'ret'.
-   In the event of ties, use the word that comes
-   first alphabetically. Treat the apostrophe as
-   alphabetically greater than all letters */
-
-// CHALLENGE2
 void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
-    if ((!isnull_dict(p)) && (!isnull_cchar(wd)) && (!isnull_cchar(ret))){
+    if ((!isnull_dict(p)) && (!isnull_cchar(wd)) && 
+        (!isnull_cchar(ret)) && (strlen(wd) > 0)){
+
         dict* q = NULL;
-        if (strlen(wd) > 0){
-            q = p->dwn[(char2idx(wd[0]))];
+        q = p->dwn[(char2idx(wd[0]))];
+        if (q != NULL){
             q = q->up;
+            dict* root = find_root(q, wd);
+            if (root != NULL){
+                pDict* ps = pDict_init(root);
+                ps_fillup(ps, root);
+                ret_fillup(ps, ret);
+                free(ps->arr); free(ps);
+            }
+            else{
+                ret[0] = '\0';
+            }
         }
-        dict* root = find_root(q, wd);
-        pDict* ps = pDict_init(root);
-        ps_fillup(ps, root);
-        ret_fillup(ps, ret);
-        free(ps->arr);
-        free(ps);
+        else{
+            ret[0] = '\0';
+        }
     }
     else{
-        on_error("feeding null pointers into dict_autocomplete");
+        on_error("feeding null pointers or empty strings into dict_autocomplete");
     }
 }
 
@@ -464,7 +410,8 @@ dict* find_root (dict* p, const char* wd)
     for (int ltr = 0; wd[ltr]; ltr++){
         // printf("%c\n", wd[ltr]);
         if (p == NULL){
-            on_error("Dereferencing NULL pointer in find_root");
+            return NULL;
+            // on_error("Dereferencing NULL pointer in find_root");
         }
         p = p->dwn[(char2idx(wd[ltr]))];
     }
@@ -474,7 +421,8 @@ dict* find_root (dict* p, const char* wd)
 pDict* pDict_init(const dict* root)
 {
     pDict* arrP = (pDict*) ncalloc(1, sizeof(pDict));
-    arrP->arr = (const dict**) ncalloc(BIGNUM, sizeof(const dict*));
+    arrP->arr = (const dict**) ncalloc(
+        BIGNUM, sizeof(const dict*));
     arrP->freq = 0;
     arrP->cpt = BIGNUM;
     arrP->ld = 0;
@@ -483,7 +431,8 @@ pDict* pDict_init(const dict* root)
 }
 
 
-//function contain ideas of code implementation from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
+//function contain ideas of code implementation from 
+//https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
 void ps_fillup(pDict* ps, const dict* q)
 {
     for (int node = 0; node < ALPHA; node++){
@@ -491,11 +440,11 @@ void ps_fillup(pDict* ps, const dict* q)
             ps_fillup(ps, q->dwn[node]);
         }
     }
-    if (q->terminal){ // i am adding constants here
-        if (ps->freq == q->freq){ // make this a separate function for readability
+    if (q->terminal){ 
+        if (ps->freq == q->freq){ 
             ps_fillup_add(ps, q);
         }
-        else if (ps->freq < q->freq){ // make this a separate function for readability
+        else if (ps->freq < q->freq){
             restart_fillup(ps, q);
         }
     }
@@ -508,7 +457,7 @@ void ps_fillup_add(pDict* ps, const dict* q)
             ps->arr, ps->cpt, ps->cpt * SCLF);
         ps->cpt *= SCLF;
     }
-    ps->arr[(ps->ld)] = q; //q here is a constant. I will do fillup later -> need to deconstify this assignment
+    ps->arr[(ps->ld)] = q; 
     (ps->ld)++;
 }
 
@@ -517,17 +466,17 @@ void restart_fillup(pDict* ps, const dict* q)
     free(ps->arr);
     ps->arr = (const dict**) ncalloc(
         BIGNUM, sizeof(dict*));
-    ps->arr[0] = q; // and this one as well
+    ps->arr[0] = q; 
     ps->freq = q->freq;
     ps->cpt = BIGNUM;
-    ps->ld = 1; //i.e. the zeroeth element of the array is occupied
+    ps->ld = 1; 
 }
 
-void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillup; merge when the funcion is working
+void ret_fillup(pDict* ps, char* ret) 
 {
     for (int i = 0; ps->arr[i]; i++){
         char* temp = ncalloc(BIGNUM, sizeof(char));
-        temp_fillup(ps->arr[i], ps, temp); // a bit fucked up, but should work
+        temp_fillup(ps->arr[i], ps, temp);
         strrev(temp, strlen(temp));
         ret_choice(ret, temp, i);
         free(temp);
@@ -558,7 +507,7 @@ void temp_fillup(const dict* q, pDict* ps, char* temp)
         idx = 0;
         ltr = q;
         q = q->up; 
-        while (q->dwn[idx] != ltr){ //why is there a seg fault in this line at all?
+        while (q->dwn[idx] != ltr){
             idx++;
         }
         temp[loc] = idx2char(idx);
@@ -567,7 +516,8 @@ void temp_fillup(const dict* q, pDict* ps, char* temp)
 }
 
 
-// function taken from https://github.com/csnwc/ADTs/blob/main/General/general.c 
+// function taken from 
+//https://github.com/csnwc/ADTs/blob/main/General/general.c 
 void* nrecalloc(void* p, int oldbytes, int newbytes)
 {
    void* n = calloc(newbytes, 1);
@@ -579,10 +529,6 @@ void* nrecalloc(void* p, int oldbytes, int newbytes)
    return n;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
 void test(void)
 {
     dict* d = NULL;
@@ -590,7 +536,7 @@ void test(void)
     dict* f = NULL;
     dict* g = NULL;
     dict* nullP = NULL;
-    char str[50];
+    
 
     assert(illegal_chars("AbC'XyZ") == false);
     assert(illegal_chars("+++++++++") == true);
@@ -718,24 +664,28 @@ void test(void)
     assert(dict_mostcommon(e) == 3);
     assert(dict_nodecount(e) == (1+12+12+6+9)); // to account all of the branches
 
-    // dict_autocomplete(nullP, "Hello", str);
+    char str[50];
+
+
     // what should I actually test in autocomplete?
-    // 1) how does it handle utocompleting nodes that are terminal?
+    // 1) how does it handle autocompleting nodes that are terminal?
     //     What should the program event return?
     // 2) How does the program handle garbage input?
     //     NULL pointers are fine, I quess
-    //     Empty strings?
+    //     Empty strings? - prohibited use of empty strings
     //     wd is not in the dictionary
-    // 3) does reallocing actually work properly?
-
-
-    //     As a rule of thub: wherever there is a possibility to dereference a null pointer, give error. Else, just don't do anything, I guess
+    //         from the satrt
+    //         from the not start
+    dict_autocomplete(e, "noyestindict", str);
+    dict_autocomplete(e, "AbCnoyestindict", str);
+    // 3) does reallocing actually work properly? - yes, it does
+    // As a rule of thub: wherever there is a possibility to dereference a null pointer, give error. Else, just don't do anything, I guess
 
 
     dict_free(&e);
     dict_free(&f);
     dict_free(&g);
 
-    printf("End of my tests\n");
-    printf("\n");
+    // printf("End of my tests\n");
+    // printf("\n");
 }
