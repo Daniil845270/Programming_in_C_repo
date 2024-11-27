@@ -43,6 +43,9 @@ void temp_fillup(const dict* q, pDict* ps, char* temp);
 void* nrecalloc(void* p, int oldbytes, int newbytes);
 dict* find_root (dict* p, const char* wd);
 
+void ps_fillup_add(pDict* ps, const dict* q);
+void restart_fillup(pDict* ps, const dict* q);
+
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -402,14 +405,15 @@ unsigned dict_cmp(dict* p1, dict* p2)
     return ans;
 }
 
-//fucntion taken from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c
+//fucntion taken from https://github.com/csnwc/Notes/blob/main/Code/ChapN/strrev_rec.c  
+//it might be a good idea to rewite this function entirely
 void strrev(char* s, int start, int end)
 {
-   if(start >= end){
-      return;
-   }
-   SWAP(s[start], s[end]);
-   strrev(s, start+1, end-1);
+    if(start >= end){
+        return;
+    }
+    SWAP(s[start], s[end]);
+    strrev(s, start+1, end-1);
 }
 
 dict* qstr_fillup(dict* q, char* str)
@@ -485,7 +489,7 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
 dict* find_root (dict* p, const char* wd)
 {
     for (int ltr = 0; wd[ltr]; ltr++){
-        printf("%c\n", wd[ltr]);
+        // printf("%c\n", wd[ltr]);
         if (p == NULL){
             on_error("Dereferencing NULL pointer in find_root");
         }
@@ -506,8 +510,8 @@ pDict* pDict_init(const dict* root)
 }
 
 
-//function contain elements adapted from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
-void ps_fillup(pDict* ps, const dict* q) //it shouldn't be q, it should be ps->root
+//function contain ideas of code implementation from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
+void ps_fillup(pDict* ps, const dict* q)
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
@@ -516,22 +520,34 @@ void ps_fillup(pDict* ps, const dict* q) //it shouldn't be q, it should be ps->r
     }
     if (q->terminal){ // i am adding constants here
         if (ps->freq == q->freq){ // make this a separate function for readability
-            if (ps->ld >= ps->cpt){
-                ps->arr = (const dict**) nrecalloc(ps->arr, ps->cpt, ps->cpt * SCLF);
-                ps->cpt *= SCLF;
-            }
-            ps->arr[(ps->ld)] = q; //q here is a constant. I will do fillup later -> need to deconstify this assignment
-            (ps->ld)++;
+            ps_fillup_add(ps, q);
         }
         else if (ps->freq < q->freq){ // make this a separate function for readability
-            free(ps->arr);
-            ps->arr = (const dict**) ncalloc(BIGNUM, sizeof(dict*));
-            ps->arr[0] = q; // and this one as well
-            ps->freq = q->freq;
-            ps->cpt = BIGNUM;
-            ps->ld = 1; //i.e. the zeroeth element of the array is occupied
+            restart_fillup(ps, q);
         }
     }
+}
+
+void ps_fillup_add(pDict* ps, const dict* q)
+{
+    if (ps->ld >= ps->cpt){
+        ps->arr = (const dict**) nrecalloc(
+            ps->arr, ps->cpt, ps->cpt * SCLF);
+        ps->cpt *= SCLF;
+    }
+    ps->arr[(ps->ld)] = q; //q here is a constant. I will do fillup later -> need to deconstify this assignment
+    (ps->ld)++;
+}
+
+void restart_fillup(pDict* ps, const dict* q)
+{
+    free(ps->arr);
+    ps->arr = (const dict**) ncalloc(
+        BIGNUM, sizeof(dict*));
+    ps->arr[0] = q; // and this one as well
+    ps->freq = q->freq;
+    ps->cpt = BIGNUM;
+    ps->ld = 1; //i.e. the zeroeth element of the array is occupied
 }
 
 void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillup; merge when the funcion is working
@@ -551,10 +567,10 @@ void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillu
 
 void ret_choice(char* ret, char* temp, int itr)
 {
-    printf("ret is %s\n", ret);
-    printf("temp is %s\n", temp);
-    printf("\n");
-    switch (itr){ //did I actually make it better this way?
+    // printf("ret is %s\n", ret);
+    // printf("temp is %s\n", temp);
+    // printf("\n");
+    switch (itr){
         case 0:
             strcpy(ret, temp); break;
         default:

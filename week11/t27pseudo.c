@@ -1,5 +1,15 @@
 #include "t27.h"
 
+Actual questions:
+1) 
+
+
+
+
+
+
+
+
 // 'Internal' function prototypes 
 // ...
 void on_error(const char* s);
