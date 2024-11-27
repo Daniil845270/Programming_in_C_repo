@@ -186,6 +186,65 @@ void dict_autocomplete(const dict* p, const char* wd, char* ret)
     2) from the list of terminal nodes, qstr_fillup() the strings 
     3) select the string which comes alphabetically first
 
-    
+    revised plan of what I want to do
+    1) 
 
 }
+
+
+    temp_fillup(q, ps, temp);
+
+    int pscnt = 0;
+    int loc = 0;
+    int idx = 0;
+    char* temp;
+    int i = 0;
+    dict* ltr = NULL;
+    while (ps->arr[pscnt]){
+        temp = ncalloc(BIGNUM, sizeof(char));
+        while (q->up != ps->root->up){ //check whether this statement is correct tho
+            idx = 0;
+            ltr = q;
+            q = q->up;
+
+            while (q->dwn[idx] != ltr){
+                idx++;
+            }
+
+            temp[loc] = idx2char(idx);
+            loc++;
+        }
+
+
+        if (strlen(str) == 0){ // this is the first iteration, may create a switch statement
+            strcpy(str, temp);
+        }
+        else{
+            for (int i = 0; str[i], i++){
+                if (temp[i] < str[i]) // character comparison
+            }
+        }
+
+        free(temp);
+        loc = 0;
+        pscnt++;
+    }
+
+
+    //////////////////////////
+    int loc = 0;
+    int idx = 0;
+    dict* ltr = NULL;
+    while (q->up != NULL){
+        idx = 0;
+        ltr = q;
+        q = q->up;
+
+        while (q->dwn[idx] != ltr){
+            idx++;
+        }
+
+        str[loc] = idx2char(idx);
+        loc++;
+    }
+    return q;

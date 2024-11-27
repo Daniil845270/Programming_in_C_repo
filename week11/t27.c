@@ -10,6 +10,7 @@ struct pDict{
     int freq;
     int cpt;
     int ld;
+    dict* root;
 };
 typedef struct pDict pDict;
 
@@ -256,7 +257,7 @@ void rec_act(const dict* q, int* num, action todo)
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-int dict_wordcount(const dict* p) //need to merge the recursive functions
+int dict_wordcount(const dict* p) 
 {
     if (isnull_dict(p) == true){
         return 0; //it's a sensible return since a null pointer contains no words
@@ -308,7 +309,6 @@ dict* dict_spell(const dict* p, const char* str) // test this function, there is
 
 
     dict* chq_nd;
-    
     for (int ltr = 0; str[ltr]; ltr++){
     //the line below is absolutely not readable, but this line does the following: 
     //1) look at the characters of the string you want to check in the dictionary 
@@ -452,51 +452,101 @@ char idx2char(int idx)
 void dict_autocomplete(const dict* p, const char* wd, char* ret)
 {
     if ((!isnull_dict(p)) && (!isnull_cchar(wd)) && (!isnull_cchar(ret))){
-        pDict* ps = pDict_init();
+        pDict* ps = pDict_init(p);
 
         ps_fillup(ps, p, wd);
 
+        ret_fillup(ps, ret);
+
+        free(ps->arr);
         free(ps);
     }
 }
 
-pDict* pDict_init(void)
+pDict* pDict_init(const dict* p)
 {
     pDict* arrP = (pDict*) ncalloc(1, sizeof(pDict));
     arrP->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
     arrP->freq = 0;
     arrP->cpt = BIGNUM;
     arrP->ld = 0;
+    arrP->root = p;
     return arrP;
 }
 
 
 //function contain elements adapted from https://github.com/csnwc/ADTs/blob/main/Collection/Realloc/realloc.c
-void ps_fillup(pDict* ps, const dict* q, const char* wd) // check in the morning that this is actually correct, and passes some basic tests
+void ps_fillup(pDict* ps, const dict* q, const char* wd)
 {
     for (int node = 0; node < ALPHA; node++){
         if (q->dwn[node] != NULL){
-            rec_act(q->dwn[node], num, todo);
+            ps_fillup(ps, q->dwn[node], wd);
         }
     }
-    if (q->terminal){
+    if (q->terminal){ // i am adding constants here
         if (ps->freq == q->freq){
             if (ps->ld >= ps->cpt){
                 ps->arr = (dict**) nrecalloc(ps->arr,
                     ps->cpt, ps->cpt * SCLF);
                 ps->cpt *= SCLF;
             }
-            ps->arr[(ps->ld)] = q;
+            ps->arr[(ps->ld)] = q; //q here is a constant. I will do fillup later -> need to deconstify this assignment
             (ps->ld)++;
         }
-        if (ps->freq < q->freq){
+        else if (ps->freq < q->freq){
             free(ps->arr);
             ps->arr = (dict**) ncalloc(BIGNUM, sizeof(dict*));
-            ps->arr[0] = q;
+            ps->arr[0] = q; // and this one as well
             arrP->freq = q->freq;
             arrP->cpt = BIGNUM;
-            arrP->ld = 1;
+            arrP->ld = 1; //i.e. the zeroeth element of the array is occupied
         }
+    }
+}
+
+void ret_fillup(pDict* ps, char* ret) //this function is almost cc of qstr_fillup; merge when the funcion is working
+{
+    for (int i = 0; ps->arr[i]; i++){
+        temp = ncalloc(BIGNUM, sizeof(char));
+
+        temp_fillup(q, ps, temp);
+
+        ret_choice(ret, temp, i)
+
+        free(temp);
+    } 
+}
+
+void ret_choice(char* ret, char* temp, int itr)
+{
+    switch (itr){ //did I actually make it better this way?
+        case 0:
+            strcpy(str, temp); break;
+        default:
+            for (int c, ret[c], c++){
+                if ((temp[c] < ret[c]) && (temp[c]) != APOSTROPHE){
+                    strcpy(str, temp);
+                }
+            }break;
+    }
+}
+
+void temp_fillup(const dict* q, pDict* ps, char* temp) // I am not assinging q new values, hence it should be fine
+{
+    int loc = 0;
+    int idx = 0;
+    dict* ltr = NULL;
+    while (q->up != ps->root->up){
+        idx = 0;
+        ltr = q;
+        q = q->up;
+
+        while (q->dwn[idx] != ltr){
+            idx++;
+        }
+
+        temp[loc] = idx2char(idx);
+        loc++;
     }
 }
 
