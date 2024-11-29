@@ -24,3 +24,7 @@ othersCanRead(file_everyone_can_read).
 saysCanRead(myself, someone, file_private).
 delegatesTo(myself, sibling).
 saysCanRead(sibling, someone, file_garbage).
+
+wget -O AbcDatalog-0.7.0.jar https://github.com/HarvardPL/AbcDatalog/releases/download/v0.7.0/AbcDatalog-0.7.0.jar
+java -jar AbcDatalog-0.7.0.jar &
+
