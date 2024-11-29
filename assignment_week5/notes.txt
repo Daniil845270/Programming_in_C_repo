@@ -1,0 +1,41 @@
+Notes for code debuggin/imporvement
+
+-- The first few tests on the initialise() function are made for strings, and after that initialise() should recognise functions. 
+Can actually write the initialise funciton first and then figure out as to how to adapt it to also read files.
+
+-- The initialise() function is not tested. It somehow works. 
+
+--init_uprcase_alphabet() - should I care if length is less than the alphabet
+
+--absolutely need to test invalid_strchar() and match_inputstr_to_ab(). Generally, they work, but need to think of edge cases and/or unexpected input
+
+--don't know if I already mentioned this, but also need to test the strings that are larger than 6 rows. Need to reverse engineed for the functions after initialise
+
+-- should we use calloc or malloc?
+
+-- matches() - if there is time left, you can improve the code to avoid redundnancy in the replacement of the conatants
+
+-- when you write the drop function, do not forget to update the value of s->isfullboard
+
+--board_tostring_filler() - need to rewrite this function so that if the whole row is ., then it would skip a row
+
+-- need to redefine the any_matches
+    fixed this problem in an ugly way, and it is not really tested. This actually would be tested once I get passed the dropblocks 
+-- dropblocks - find out why the function has to return true 
+
+
+Questions
+
+-- There is a maximum number of rows. However, the exercise did not explicitly state what the minimum number of rows is, so I assume it is 1. May ask a question about 
+this on Monday
+
+-- When we initialise a board, if the initialisation string is greater than 5*6, then there is no problem. However, when the initiation string is less than 30 chracters, 
+do we leave it as is or do we add dots so to fill up missing characters?
+
+-- Returns false if s is NULL - why is this a condition in every function?
+
+#
+
+
+Wednesday
+--test the program with Zs and other alphabet letters, make sure they work as well
