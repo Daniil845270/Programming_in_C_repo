@@ -1,0 +1,26 @@
+canRead(U, F) :- owner(F, U).
+canRead(U, F) :- othersCanRead(F), principal(U).
+canRead(U, F) :- owner(F, O), saysCanRead(O, U, F).
+canRead(U, F) :- owner(F, O), delegatesTo(O, U).
+canRead(U, F) :- owner(F, O), delegatesTo(O,P), saysCanRead(P, U, F).
+
+file(file_one).
+file(file_two).
+file(file_garbage).
+file(file_private).
+file(file_everyone_can_read).
+
+principal(myself).
+principal(someone).
+principal(sibling).
+
+owner(file_one, myself).
+owner(file_two, myself).
+owner(file_garbage, myself).
+owner(file_private, myself).
+
+othersCanRead(file_everyone_can_read).
+
+saysCanRead(myself, someone, file_private).
+delegatesTo(myself, sibling).
+saysCanRead(sibling, someone, file_garbage).

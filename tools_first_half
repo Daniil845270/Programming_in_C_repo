@@ -1,0 +1,34 @@
+parent(pugsley, gomez).
+parent(pugsley, wednesday).
+parent(pugsley, pubert).
+parent(morticia, gomez).
+parent(morticia, wednesday).
+parent(morticia, pubert).
+
+parent(debbie_jellinski, sharron).
+parent(debbie_jellinski, dave).
+
+parent(fester, father).
+parent(fester, eudora_esmerelda_frump).
+parent(gomez, father).
+parent(gomez, eudora_esmerelda_frump).
+
+parent(morticia, hester_frump).
+parent(morticia, father_frump).
+parent(ophella, hester_frump).
+parent(ophella, father_frump).
+
+parent(eudora_esmerelda_frump, mooma).
+parent(eudora_esmerelda_frump, slurp_frump).
+parent(father_frump, mooma).
+parent(father_frump, slurp_frump).
+parent(jester_frump, mooma).
+parent(jester_frump, slurp_frump).
+parent(sloom_addams, mooma).
+parent(sloom_addams, slurp_frump).
+
+sibling(X, Y) :- parent(X, Z), parent(Y, Z), X != Y.
+grandparent(X,Z) :- parent(X,Y), parent(Y,Z).
+cousin(X, Y) :- grandparent(X,Z), grandparent(Y,Z), X!=Y.
+uncle_aunt(A, B) :- parent(A, C), sibling(B, C).
+
