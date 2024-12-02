@@ -21,6 +21,7 @@ void moveZeroes(int* nums, int numsSize) {
     for (int i = 0; i < ((numsSize) - 1); i++){
         if (nums[i] == 0){
             if (checkzeros(nums, i) == false){
+                printf("was here\n");
                 putaway(nums, i);
             }
         }
@@ -28,7 +29,10 @@ void moveZeroes(int* nums, int numsSize) {
 }
 
 bool checkzeros(int* nums, int i){
+    printf("was before loop\n");
+    printf("i = %d, nums[i] = %d\n", i, nums[i]);
     while (nums[i]){
+        printf("i = %d, nums[i] = %d\n", i, nums[i]);
         if (nums[i] != 0){
             return false;
         }
@@ -38,7 +42,6 @@ bool checkzeros(int* nums, int i){
 }
 
 void putaway(int* nums, int i){
-    printf("was here\n");
     int j = i + 1; 
     int temp;
     while (nums[j]){
