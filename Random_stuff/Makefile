@@ -4,7 +4,10 @@ OPTIM := $(WARNS) -O3
 .PHONY: all run rund clean
 
 move: move_zeroes.c
-	gcc move_zeroes.c $(DEBUG) -o move_zeroes
+	clang move_zeroes.c $(DEBUG) -o move_zeroes
+
+moveO: move_zeroes.c
+	clang move_zeroes.c $(OPTIM) -o move_zeroesO
 
 run: move_zeroes
 	./move_zeroes
